@@ -21,7 +21,12 @@ This is a basic example which shows you how to solve a common problem:
 
 ``` r
 library(evalGSVAsig)
-output <- GSVAsignatureRanking(eset, signature)
+#example gene list
+sig <- c("GENE1", "GENE2", "GENE3")
+signature_list <- c(list(sig))
+names(signature_list) <- c("signature1")
+
+output <- GSVAsignatureRanking(eset, signature_list)
 #print df of genes ordered by correlation to GSVA scores
 output[[1]]
 
