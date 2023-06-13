@@ -36,13 +36,14 @@ GSVAsignatureRanking <- function(
   df1 <- df[order(-df$correlation),]
   #add rank numbers
   df1$rank <- seq.int(nrow(df1))
+  returnobject[[1]] <- df1
 
   #extract only genes within signature
   df_filtered <- df1 %>%
     filter(df1$gene %in% signature[[1]])
 
   #save df of signature genes, their correlation with GSVA score and rankings
-  returnobject[[1]] <- df_filtered
+  returnobject[[2]] <- df_filtered
 
   #takethisout
   #test <- ksGenescore(nrow(df1), df_filtered$rank,do.pval = FALSE, do.plot= T)
@@ -71,7 +72,7 @@ GSVAsignatureRanking <- function(
     rowAnnotation(correlation = anno_barplot(df3$correlation)) + rowAnnotation(siggene = df3$insig)
 
   #store heatmap
-  returnobject[[2]] <- ht_list
+  returnobject[[3]] <- ht_list
 
   #plot
 
@@ -102,13 +103,13 @@ GSVAsignatureRanking <- function(
     rowAnnotation(correlation = anno_barplot(df3$correlation)) + rowAnnotation(siggene = df3$insig)
 
   #store heatmap
-  returnobject[[3]] <- ht_list1
+  returnobject[[4]] <- ht_list1
 
   #store eset with gsva scores
-  returnobject[[4]] <- eset
+  returnobject[[5]] <- eset
 
   #label items in returnobject
-  names(returnobject) <- c("ordered_df", "heatmap_AllGenes", "heatmap_SignatureGenes", "eset_wGSVA")
+  names(returnobject) <- c("ordered_dfall", "ordered_dffiltered", "heatmap_AllGenes", "heatmap_SignatureGenes", "eset_wGSVA")
 
   #return everything
   return(returnobject)
