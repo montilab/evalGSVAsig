@@ -40,7 +40,7 @@ GSVAsignatureRanking <- function(
 
   #extract only genes within signature
   df_filtered <- df1 %>%
-    filter(df1$gene %in% signature[[1]])
+    filter(gene %in% signature[[1]])
 
   #save df of signature genes, their correlation with GSVA score and rankings
   returnobject[[2]] <- df_filtered
