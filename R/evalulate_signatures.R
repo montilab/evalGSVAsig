@@ -1,0 +1,109 @@
+#' This function evaluates the contributions of genes in GSVA scores
+#'
+#' @param eset an expression set
+#' @param signature a list of signatures (at least 1)
+#'
+#' @return a list of a dataframe and two heatmaps
+#' @export
+#' @import GSVA ComplexHeatmap
+#'
+#' @examples
+GSVAsignatureRanking <- function(
+    eset,              # an expressionset object
+    signature         # named list containing signature
+)   {
+  #set up empty list in which to store things function will return
+  returnobject <- list()
+
+  #run gsva with eset and signature
+  esetgsva <- gsva(eset, signature, verbose = FALSE)
+
+  #add gsva results to eset metadata
+  eset$signature_gsvascore <- t(exprs(esetgsva[1,]))
+
+  #make dataframe of correlation of each gene with signature
+  df <- data.frame()
+  count <- 1
+  for (i in 1:nrow(exprs(eset))) {
+    a <- cor(exprs(eset)[i,], eset$signature_gsvascore)
+    df[i,1] <- a[1,1]
+    df[i,2] <- rownames(eset)[[i]]
+    count = count + 1
+  }
+  names(df) <- c("correlation", "gene")
+
+  #sort df
+  df1 <- df[order(-df$correlation),]
+  #add rank numbers
+  df1$rank <- seq.int(nrow(df1))
+
+  #extract only genes within signature
+  df_filtered <- df1 %>%
+    filter(df1$gene %in% signature[[1]])
+
+  #save df of signature genes, their correlation with GSVA score and rankings
+  returnobject[[1]] <- df_filtered
+
+  #takethisout
+  #test <- ksGenescore(nrow(df1), df_filtered$rank,do.pval = FALSE, do.plot= T)
+
+  #plot
+
+  #with all genes
+  hmexprs <- exprs(eset)
+  rownames(df1) <- df1$gene
+
+  #order columns
+  sampledf <- as.data.frame(eset$signature_gsvascore)
+  sampledf$samples <- rownames(sampledf)
+  sampledf <- sampledf[order(-sampledf[,1]),]
+  names(sampledf) <- c("score", "samples")
+
+  #make matrix
+  test_ordered <- hmexprs[df1$gene, sampledf$samples]
+  test_ordered2 <- test_ordered
+  colnames(test_ordered2) = NULL
+  mat_scaled = t(scale(t(test_ordered2)))
+  df3 <- df1[order(-df1$correlation),]
+  df3$insig <-  with(df3, ifelse(df3$gene %in% signature[[1]], 'SignatureGene', 'BG'))
+
+  ht_list = Heatmap(mat_scaled, name = "mat", top_annotation = HeatmapAnnotation(GsvaScore = anno_barplot(sampledf$score)), show_column_dend = FALSE,cluster_rows = FALSE, cluster_columns = FALSE, cluster_column_slices = FALSE, show_row_dend = FALSE, row_title = "Genes") +
+    rowAnnotation(correlation = anno_barplot(df3$correlation)) + rowAnnotation(siggene = df3$insig)
+
+  #store heatmap
+  returnobject[[2]] <- ht_list
+
+  #plot
+
+  ##with only signature genes
+  hmexprs <- exprs(eset)[intersect(rownames(exprs(eset)), (signature[[1]])),]
+  rownames(df1) <- df1$gene
+
+  #order rows
+  df2 <- df1[intersect(signature[[1]], (rownames(eset))),]
+  #sort
+  df2 <- df2[order(df2$rank),]
+
+  #order columns
+  sampledf <- as.data.frame(eset$signature_gsvascore)
+  sampledf$samples <- rownames(sampledf)
+  sampledf <- sampledf[order(-sampledf[,1]),]
+  names(sampledf) <- c("score", "samples")
+
+  #make matrix
+  test_ordered <- hmexprs[df2$gene, sampledf$samples]
+  test_ordered2 <- test_ordered
+  colnames(test_ordered2) = NULL
+  mat_scaled = t(scale(t(test_ordered2)))
+  df3 <- df2[order(-df2$correlation),]
+  df3$insig <-  with(df3, ifelse(df3$gene %in% signature[[1]], 'SignatureGene', 'BG'))
+
+  ht_list1 = Heatmap(mat_scaled, name = "mat", top_annotation = HeatmapAnnotation(gsva = anno_barplot(sampledf$score)), show_column_dend = FALSE,cluster_rows = FALSE, cluster_columns = FALSE, cluster_column_slices = FALSE, show_row_dend = FALSE, row_title = "Signature Genes") +
+    rowAnnotation(correlation = anno_barplot(df3$correlation)) + rowAnnotation(siggene = df3$insig)
+
+  #store heatmap
+  returnobject[[3]] <- ht_list1
+
+  #return everything
+  return(returnobject)
+}
