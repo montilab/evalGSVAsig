@@ -5,7 +5,7 @@
 #'
 #' @return a list of a dataframe and two heatmaps
 #' @export
-#' @import GSVA ComplexHeatmap stats Biobase
+#' @import GSVA ComplexHeatmap stats Biobase dplyr
 #'
 #' @examples
 GSVAsignatureRanking <- function(
