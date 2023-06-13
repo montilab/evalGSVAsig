@@ -5,18 +5,18 @@
 #'
 #' @return a list of a dataframe and two heatmaps
 #' @export
-#' @import GSVA ComplexHeatmap
+#' @import GSVA ComplexHeatmap stats
 #'
 #' @examples
 GSVAsignatureRanking <- function(
-    eset,              # an expressionset object
-    signature         # named list containing signature
+    eset,
+    signature
 )   {
   #set up empty list in which to store things function will return
   returnobject <- list()
 
   #run gsva with eset and signature
-  esetgsva <- gsva(eset, signature, verbose = FALSE)
+  esetgsva <- GSVA::gsva(eset, signature, verbose = FALSE)
 
   #add gsva results to eset metadata
   eset$signature_gsvascore <- t(exprs(esetgsva[1,]))
@@ -25,7 +25,7 @@ GSVAsignatureRanking <- function(
   df <- data.frame()
   count <- 1
   for (i in 1:nrow(exprs(eset))) {
-    a <- cor(exprs(eset)[i,], eset$signature_gsvascore)
+    a <- stats::cor(exprs(eset)[i,], eset$signature_gsvascore, use="complete.obs", method = "pearson")
     df[i,1] <- a[1,1]
     df[i,2] <- rownames(eset)[[i]]
     count = count + 1
@@ -67,7 +67,7 @@ GSVAsignatureRanking <- function(
   df3 <- df1[order(-df1$correlation),]
   df3$insig <-  with(df3, ifelse(df3$gene %in% signature[[1]], 'SignatureGene', 'BG'))
 
-  ht_list = Heatmap(mat_scaled, name = "mat", top_annotation = HeatmapAnnotation(GsvaScore = anno_barplot(sampledf$score)), show_column_dend = FALSE,cluster_rows = FALSE, cluster_columns = FALSE, cluster_column_slices = FALSE, show_row_dend = FALSE, row_title = "Genes") +
+  ht_list = ComplexHeatmap::Heatmap(mat_scaled, name = "mat", top_annotation = HeatmapAnnotation(GsvaScore = anno_barplot(sampledf$score)), show_column_dend = FALSE,cluster_rows = FALSE, cluster_columns = FALSE, cluster_column_slices = FALSE, show_row_dend = FALSE, row_title = "Genes") +
     rowAnnotation(correlation = anno_barplot(df3$correlation)) + rowAnnotation(siggene = df3$insig)
 
   #store heatmap
@@ -98,11 +98,14 @@ GSVAsignatureRanking <- function(
   df3 <- df2[order(-df2$correlation),]
   df3$insig <-  with(df3, ifelse(df3$gene %in% signature[[1]], 'SignatureGene', 'BG'))
 
-  ht_list1 = Heatmap(mat_scaled, name = "mat", top_annotation = HeatmapAnnotation(gsva = anno_barplot(sampledf$score)), show_column_dend = FALSE,cluster_rows = FALSE, cluster_columns = FALSE, cluster_column_slices = FALSE, show_row_dend = FALSE, row_title = "Signature Genes") +
+  ht_list1 = ComplexHeatmap::Heatmap(mat_scaled, name = "mat", top_annotation = HeatmapAnnotation(gsva = anno_barplot(sampledf$score)), show_column_dend = FALSE,cluster_rows = FALSE, cluster_columns = FALSE, cluster_column_slices = FALSE, show_row_dend = FALSE, row_title = "Signature Genes") +
     rowAnnotation(correlation = anno_barplot(df3$correlation)) + rowAnnotation(siggene = df3$insig)
 
   #store heatmap
   returnobject[[3]] <- ht_list1
+
+  #store eset with gsva scores
+  returnobject[[4]] <- eset
 
   #return everything
   return(returnobject)
