@@ -12,7 +12,7 @@ The goal of evalGSVAsig is to ...
 You can install the development version of evalGSVAsig like so:
 
 ``` r
-# FILL THIS IN! HOW CAN PEOPLE INSTALL YOUR DEV PACKAGE?
+devtools:
 ```
 
 ## Example
@@ -21,6 +21,17 @@ This is a basic example which shows you how to solve a common problem:
 
 ``` r
 library(evalGSVAsig)
-## basic example code
+output <- GSVAsignatureRanking(eset, signature)
+#print df of genes ordered by correlation to GSVA scores
+output[[1]]
+
+#show heatmap of ALL gene expression in relation to GSVA score
+output[[2]]
+
+#show heatmap of SIGNATURE gene expression in relation to GSVA score
+output[[3]]
+
+#get expression with GSVA scores saved in pData
+output[[4]]
 ```
 

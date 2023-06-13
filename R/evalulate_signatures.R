@@ -5,7 +5,7 @@
 #'
 #' @return a list of a dataframe and two heatmaps
 #' @export
-#' @import GSVA ComplexHeatmap stats
+#' @import GSVA ComplexHeatmap stats Biobase
 #'
 #' @examples
 GSVAsignatureRanking <- function(
@@ -19,13 +19,13 @@ GSVAsignatureRanking <- function(
   esetgsva <- GSVA::gsva(eset, signature, verbose = FALSE)
 
   #add gsva results to eset metadata
-  eset$signature_gsvascore <- t(exprs(esetgsva[1,]))
+  eset$signature_gsvascore <- t(Biobase::exprs(esetgsva[1,]))
 
   #make dataframe of correlation of each gene with signature
   df <- data.frame()
   count <- 1
-  for (i in 1:nrow(exprs(eset))) {
-    a <- stats::cor(exprs(eset)[i,], eset$signature_gsvascore, use="complete.obs", method = "pearson")
+  for (i in 1:nrow(Biobase::exprs(eset))) {
+    a <- stats::cor(Biobase::exprs(eset)[i,], eset$signature_gsvascore, use="complete.obs", method = "pearson")
     df[i,1] <- a[1,1]
     df[i,2] <- rownames(eset)[[i]]
     count = count + 1
@@ -50,7 +50,7 @@ GSVAsignatureRanking <- function(
   #plot
 
   #with all genes
-  hmexprs <- exprs(eset)
+  hmexprs <- Biobase::exprs(eset)
   rownames(df1) <- df1$gene
 
   #order columns
@@ -76,7 +76,7 @@ GSVAsignatureRanking <- function(
   #plot
 
   ##with only signature genes
-  hmexprs <- exprs(eset)[intersect(rownames(exprs(eset)), (signature[[1]])),]
+  hmexprs <- Biobase::exprs(eset)[intersect(rownames(Biobase::exprs(eset)), (signature[[1]])),]
   rownames(df1) <- df1$gene
 
   #order rows
@@ -106,6 +106,9 @@ GSVAsignatureRanking <- function(
 
   #store eset with gsva scores
   returnobject[[4]] <- eset
+
+  #label items in returnobject
+  names(returnobject) <- c("ordered_df", "heatmap_AllGenes", "heatmap_SignatureGenes", "eset_wGSVA")
 
   #return everything
   return(returnobject)
