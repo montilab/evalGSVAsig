@@ -25,7 +25,7 @@ GSVAsignatureRanking <- function(
   df <- data.frame()
   count <- 1
   for (i in 1:nrow(Biobase::exprs(eset))) {
-    a <- stats::cor(Biobase::exprs(eset)[i,], eset$signature_gsvascore, use="complete.obs", method = "pearson")
+    a <- stats::cor(Biobase::exprs(eset)[i,], eset$signature_gsvascore, method = "pearson")
     df[i,1] <- a[1,1]
     df[i,2] <- rownames(eset)[[i]]
     count = count + 1
