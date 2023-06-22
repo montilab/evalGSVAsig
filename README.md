@@ -5,7 +5,7 @@
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 <!-- badges: end -->
 
-The goal of evalGSVAsig is to ...
+The goal of evalGSVAsig is to understand which genes in a signature contribute most to a GSVA score.
 
 ## Installation
 
@@ -41,6 +41,18 @@ output[[2]]
 output[[3]]
 
 #get expression with GSVA scores saved in pData
+output[[4]]
+
+
+#with our sample data
+signaturelist <- data('signatures.rda')
+eset <- data('eset.rda')
+
+output <- GSVAsignatureRanking(eset, signature_list)
+
+head(output[[1]])
+head(output[[2]])
+output[[3]]
 output[[4]]
 ```
 
