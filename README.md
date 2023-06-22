@@ -108,7 +108,7 @@ output <- evalGSVAsig::GSVAsignatureRanking(eset, signatures)
 View tables:
 
 ``` r
-#This table contains only signature genes
+#This table contains all genes
 head(output[[1]])
 #>     correlation   gene rank
 #> 470   0.7223057 WFDC12    1
@@ -117,7 +117,7 @@ head(output[[1]])
 #> 458   0.6744871   DSC1    4
 #> 234   0.6293875   DSG1    5
 #> 454   0.6065752   ARG1    6
-#This table contains all genes; right now there is a bug so it doesn't work.
+#This table contains only signature genes; right now there is a bug so it doesn't work.
 head(output[[2]])
 #>      [,1] [,2] [,3]
 #> [1,]   NA   NA   NA
@@ -130,8 +130,16 @@ head(output[[2]])
 
 View heatmap that plots all signature and non-signature genes:
 
+``` r
+output[[3]]
+```
+
 <img src="man/figures/README-heatmaps-1.png" width="100%" />
 
 View heatmap that plots only signature genes:
+
+``` r
+output[[4]]
+```
 
 <img src="man/figures/README-heatmap2-1.png" width="100%" />

@@ -72,21 +72,21 @@ output <- evalGSVAsig::GSVAsignatureRanking(eset, signatures)
 View tables:
 
 ```{r tables}
-#This table contains only signature genes
+#This table contains all genes
 head(output[[1]])
-#This table contains all genes; right now there is a bug so it doesn't work.
+#This table contains only signature genes; right now there is a bug so it doesn't work.
 head(output[[2]])
 ```
 
 View heatmap that plots all signature and non-signature genes:
 
-```{r heatmaps, echo = FALSE}
+```{r heatmaps}
 output[[3]]
 ```
 
 View heatmap that plots only signature genes:
 
-```{r heatmap2, echo = FALSE}
+```{r heatmap2}
 output[[4]]
 ```
 
