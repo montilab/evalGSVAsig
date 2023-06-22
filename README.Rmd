@@ -1,0 +1,92 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+
+# evalGSVAsig
+
+<!-- badges: start -->
+<!-- badges: end -->
+
+The goal of evalGSVAsig is to ...
+
+## Installation
+
+You can install the development version of evalGSVAsig from [GitHub](https://github.com/) with:
+
+``` r
+# install.packages("devtools")
+devtools::install_github("lkroeh/evalGSVAsig")
+```
+
+## Example
+
+This is a basic example which shows the format of the data:
+
+```{r example, eval = FALSE}
+library(evalGSVAsig)
+
+#example gene list
+sig <- c("GENE1", "GENE2", "GENE3")
+signature_list <- c(list(sig))
+names(signature_list) <- c("signature1")
+
+#run function
+output <- evalGSVAsig::GSVAsignatureRanking(eset, signature_list)
+
+#view output
+#print df of genes ordered by correlation to GSVA scores
+output[[1]]
+
+#show heatmap of ALL gene expression in relation to GSVA score
+output[[2]]
+
+#show heatmap of SIGNATURE gene expression in relation to GSVA score
+output[[3]]
+
+#get expression with GSVA scores saved in pData
+output[[4]]
+```
+
+With sample data:
+
+```{r plots, message=FALSE, warnings=FALSE }
+#with our sample data
+data(signatures)
+data(eset)
+
+output <- evalGSVAsig::GSVAsignatureRanking(eset, signatures)
+```
+
+
+View tables:
+
+```{r tables}
+#This table contains only signature genes
+head(output[[1]])
+#This table contains all genes; right now there is a bug so it doesn't work.
+head(output[[2]])
+```
+
+View heatmap that plots all signature and non-signature genes:
+
+```{r heatmaps, echo = FALSE}
+output[[3]]
+```
+
+View heatmap that plots only signature genes:
+
+```{r heatmap2, echo = FALSE}
+output[[4]]
+```
+

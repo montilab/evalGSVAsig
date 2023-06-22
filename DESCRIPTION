@@ -12,7 +12,7 @@ Description: Given a signature and expressionset, this tool first uses GSVA to
     produced GSVA score, and returns a ranked list of genes, and two heatmaps.
 License: GPL (>= 3)
 Encoding: UTF-8
-LazyData: true
+LazyData: false
 RoxygenNote: 7.2.3
 Imports: GSVA, ComplexHeatmap, stats, Biobase, dplyr
 Suggests: 
