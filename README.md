@@ -45,8 +45,8 @@ output[[4]]
 
 
 #with our sample data
-signaturelist <- data('signatures.rda')
-eset <- data('eset.rda')
+signaturelist <- data(signatures.rda)
+eset <- data(eset.rda)
 
 output <- GSVAsignatureRanking(eset, signature_list)
 
