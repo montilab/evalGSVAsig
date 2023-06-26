@@ -1,6 +1,6 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
- 
+
 # evalGSVAsig
 
 <!-- badges: start -->
@@ -74,17 +74,17 @@ head(output[[1]])
 head(output[[2]])
 #>     correlation   gene rank
 #> 470   0.7223057 WFDC12    1
-#> 75    0.7145882 ASPRV1    2
 #> 481   0.7058520  LCE3E    3
 #> 458   0.6744871   DSC1    4
-#> 234   0.6293875   DSG1    5
 #> 454   0.6065752   ARG1    6
+#> 483   0.6016642  LCE2C    7
+#> 465   0.5928593  LCE2B    8
 ```
 
 View heatmap that plots all signature and non-signature genes:
 
 ``` r
-output[[3]]
+output[[3]] 
 ```
 
 <img src="man/figures/README-heatmaps-1.png" width="100%" />
