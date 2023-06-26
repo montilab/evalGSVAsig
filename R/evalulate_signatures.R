@@ -42,7 +42,7 @@ GSVAsignatureRanking <- function(
 
   #extract only genes within signature
   df_filtered <- df1 %>%
-    filter(df1$gene %in% signature[[1]])
+    na.omit(filter(df1$gene %in% signature[[1]]))
 
   #save df of signature genes, their correlation with GSVA score and rankings
   returnobject[[2]] <- df_filtered
@@ -59,8 +59,15 @@ GSVAsignatureRanking <- function(
   #order columns
   sampledf <- as.data.frame(eset$signature_gsvascore)
   sampledf$samples <- rownames(sampledf)
-  sampledf <- sampledf[order(-sampledf[,1]),]
-  names(sampledf) <- c("score", "samples")
+  if (in.na(metacol)) {
+    sampledf <- sampledf[order(-sampledf[,1]),]
+    names(sampledf) <- c("score", "samples")
+  }
+  else {
+    sampledf$ano <- eset[[metacol]]
+    sampledf <- sampledf[order(-sampledf[,1]),]
+    names(sampledf) <- c("score", "samples", "ano")
+  }
 
   #make matrix
   test_ordered <- hmexprs[df1$gene, sampledf$samples]
@@ -70,11 +77,19 @@ GSVAsignatureRanking <- function(
   df3 <- df1[order(-df1$correlation),]
   df3$insig <-  with(df3, ifelse(df3$gene %in% signature[[1]], 'SignatureGene', 'BG'))
 
-  ht_list = ComplexHeatmap::Heatmap(mat_scaled, name = "mat",
-                                    top_annotation = HeatmapAnnotation(GsvaScore = anno_barplot(sampledf$score)),
+  #add top annotation
+  if (in.na(metacol)) {
+    column_ha = HeatmapAnnotation(gsva = anno_barplot(sampledf$score))
+  }
+  else {
+    column_ha = HeatmapAnnotation(ano = sampledf$ano, gsva = anno_barplot(sampledf$score))
+  }
+
+  ht_list = ComplexHeatmap::Heatmap(mat_scaled, name = "mat", #top_annotation = HeatmapAnnotation(GsvaScore = anno_barplot(sampledf$score)),
+                                    top_annotation = column_ha,
                                     show_column_dend = FALSE,cluster_rows = FALSE, cluster_columns = FALSE,
                                     cluster_column_slices = FALSE, show_row_dend = FALSE, row_title = "Genes") +
-    rowAnnotation(siggene = df3$insig) + rowAnnotation(correlation = anno_barplot(df3$correlation))
+    rowAnnotation(siggene = df3$insig, col= c(SignatureGene = "gold", BG = "darkgreen")) + rowAnnotation(correlation = anno_barplot(df3$correlation))
 
   #store heatmap
   returnobject[[3]] <- ht_list
@@ -93,8 +108,15 @@ GSVAsignatureRanking <- function(
   #order columns
   sampledf <- as.data.frame(eset$signature_gsvascore)
   sampledf$samples <- rownames(sampledf)
-  sampledf <- sampledf[order(-sampledf[,1]),]
-  names(sampledf) <- c("score", "samples")
+  if (in.na(metacol)) {
+    sampledf <- sampledf[order(-sampledf[,1]),]
+    names(sampledf) <- c("score", "samples")
+  }
+  else {
+    sampledf$ano <- eset[[metacol]]
+    sampledf <- sampledf[order(-sampledf[,1]),]
+    names(sampledf) <- c("score", "samples", "ano")
+  }
 
   #make matrix
   test_ordered <- hmexprs[df2$gene, sampledf$samples]
@@ -104,7 +126,12 @@ GSVAsignatureRanking <- function(
   df3 <- df2[order(-df2$correlation),]
   df3$insig <-  with(df3, ifelse(df3$gene %in% signature[[1]], 'SignatureGene', 'BG'))
 
-  column_ha = HeatmapAnnotation(ano = data.frame(eset[[metacol]]), gsva = anno_barplot(sampledf$score))
+  if (in.na(metacol)) {
+    column_ha = HeatmapAnnotation(gsva = anno_barplot(sampledf$score))
+  }
+  else {
+    column_ha = HeatmapAnnotation(ano = sampledf$ano, gsva = anno_barplot(sampledf$score))
+  }
   #top_annotation = HeatmapAnnotation(gsva = anno_barplot(sampledf$score))
   ht_list1 = ComplexHeatmap::Heatmap(mat_scaled, name = "mat", #top_annotation = HeatmapAnnotation(gsva = anno_barplot(sampledf$score)),
                                      top_annotation = column_ha,
