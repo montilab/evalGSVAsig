@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of evalGSVAsig is to ...
+The goal of evalGSVAsig is to identify which genes are contributing most to a GSVA score.
 
 ## Installation
 
@@ -65,7 +65,7 @@ With sample data:
 data(signatures)
 data(eset)
 
-output <- evalGSVAsig::GSVAsignatureRanking(eset, signatures)
+output <- evalGSVAsig::GSVAsignatureRanking(eset = eset, signature = signatures, metacol = 'hpv_status')
 ```
 
 

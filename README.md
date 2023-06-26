@@ -6,7 +6,8 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of evalGSVAsig is to …
+The goal of evalGSVAsig is to identify which genes are contributing most
+to a GSVA score.
 
 ## Installation
 
@@ -54,7 +55,7 @@ With sample data:
 data(signatures)
 data(eset)
 
-output <- evalGSVAsig::GSVAsignatureRanking(eset, signatures)
+output <- evalGSVAsig::GSVAsignatureRanking(eset = eset, signature = signatures, metacol = 'hpv_status')
 #> Warning: replacing previous import 'Biobase::combine' by 'dplyr::combine' when
 #> loading 'evalGSVAsig'
 #> Warning: replacing previous import 'dplyr::filter' by 'stats::filter' when
@@ -119,13 +120,13 @@ head(output[[1]])
 #> 454   0.6065752   ARG1    6
 #This table contains only signature genes; right now there is a bug so it doesn't work.
 head(output[[2]])
-#>      [,1] [,2] [,3]
-#> [1,]   NA   NA   NA
-#> [2,]   NA   NA   NA
-#> [3,]   NA   NA   NA
-#> [4,]   NA   NA   NA
-#> [5,]   NA   NA   NA
-#> [6,]   NA   NA   NA
+#>     correlation   gene rank
+#> 470   0.7223057 WFDC12    1
+#> 75    0.7145882 ASPRV1    2
+#> 481   0.7058520  LCE3E    3
+#> 458   0.6744871   DSC1    4
+#> 234   0.6293875   DSG1    5
+#> 454   0.6065752   ARG1    6
 ```
 
 View heatmap that plots all signature and non-signature genes:
