@@ -136,7 +136,7 @@ GSVAsignatureRanking <- function(
                                      show_column_dend = FALSE,cluster_rows = FALSE,
                                      cluster_columns = FALSE, cluster_column_slices = FALSE,
                                      show_row_dend = FALSE, row_title = "Signature Genes") +
-    rowAnnotation(siggene = df3$insig) + rowAnnotation(correlation = anno_barplot(df3$correlation))
+    rowAnnotation(correlation = anno_barplot(df3$correlation))
 
   #store heatmap
   returnobject[[4]] <- ht_list1
