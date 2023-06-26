@@ -84,7 +84,7 @@ GSVAsignatureRanking <- function(
   }
 
   row_ha = HeatmapAnnotation(genes = df3$insig,
-                         col = list(genes = c("Background" = "darkred", "SignatureGene" = "lightgreen")),
+                         col = list(genes = c("Background" = "brown", "SignatureGene" = "lightgreen")),
                          show_annotation_name = F, which = 'row')
 
   ht_list = ComplexHeatmap::Heatmap(mat_scaled, name = "expression",

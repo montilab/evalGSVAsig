@@ -33,7 +33,7 @@ devtools::install_github("lkroeh/evalGSVAsig")
 
 This is a basic example which shows the format of the data:
 
-```{r example, eval = FALSE}
+```{r example, eval = FALSE, message=FALSE, warnings=FALSE }
 library(evalGSVAsig)
 
 #example gene list
@@ -60,7 +60,7 @@ output[[4]]
 
 With sample data:
 
-```{r plots, message=FALSE, warnings=FALSE }
+```{r plots, message=FALSE, warning=FALSE, results='hide' }
 #with our sample data
 data(signatures)
 data(eset)
@@ -74,7 +74,7 @@ View tables:
 ```{r tables}
 #This table contains all genes
 head(output[[1]])
-#This table contains only signature genes; right now there is a bug so it doesn't work.
+#This table contains only signature genes
 head(output[[2]])
 ```
 

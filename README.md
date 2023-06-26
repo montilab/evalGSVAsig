@@ -56,54 +56,6 @@ data(signatures)
 data(eset)
 
 output <- evalGSVAsig::GSVAsignatureRanking(eset = eset, signature = signatures, metacol = 'hpv_status')
-#> Warning: replacing previous import 'Biobase::combine' by 'dplyr::combine' when
-#> loading 'evalGSVAsig'
-#> Warning: replacing previous import 'dplyr::filter' by 'stats::filter' when
-#> loading 'evalGSVAsig'
-#> Warning: replacing previous import 'dplyr::lag' by 'stats::lag' when loading
-#> 'evalGSVAsig'
-#> Warning in .filterFeatures(expr, method): 13 genes with constant expression
-#> values throuhgout the samples.
-#> Warning in .filterFeatures(expr, method): Since argument method!="ssgsea", genes
-#> with constant expression values are discarded.
-#> Warning in stats::cor(Biobase::exprs(eset)[i, ], eset$signature_gsvascore, : the
-#> standard deviation is zero
-
-#> Warning in stats::cor(Biobase::exprs(eset)[i, ], eset$signature_gsvascore, : the
-#> standard deviation is zero
-
-#> Warning in stats::cor(Biobase::exprs(eset)[i, ], eset$signature_gsvascore, : the
-#> standard deviation is zero
-
-#> Warning in stats::cor(Biobase::exprs(eset)[i, ], eset$signature_gsvascore, : the
-#> standard deviation is zero
-
-#> Warning in stats::cor(Biobase::exprs(eset)[i, ], eset$signature_gsvascore, : the
-#> standard deviation is zero
-
-#> Warning in stats::cor(Biobase::exprs(eset)[i, ], eset$signature_gsvascore, : the
-#> standard deviation is zero
-
-#> Warning in stats::cor(Biobase::exprs(eset)[i, ], eset$signature_gsvascore, : the
-#> standard deviation is zero
-
-#> Warning in stats::cor(Biobase::exprs(eset)[i, ], eset$signature_gsvascore, : the
-#> standard deviation is zero
-
-#> Warning in stats::cor(Biobase::exprs(eset)[i, ], eset$signature_gsvascore, : the
-#> standard deviation is zero
-
-#> Warning in stats::cor(Biobase::exprs(eset)[i, ], eset$signature_gsvascore, : the
-#> standard deviation is zero
-
-#> Warning in stats::cor(Biobase::exprs(eset)[i, ], eset$signature_gsvascore, : the
-#> standard deviation is zero
-
-#> Warning in stats::cor(Biobase::exprs(eset)[i, ], eset$signature_gsvascore, : the
-#> standard deviation is zero
-
-#> Warning in stats::cor(Biobase::exprs(eset)[i, ], eset$signature_gsvascore, : the
-#> standard deviation is zero
 ```
 
 View tables:
@@ -118,7 +70,7 @@ head(output[[1]])
 #> 458   0.6744871   DSC1    4
 #> 234   0.6293875   DSG1    5
 #> 454   0.6065752   ARG1    6
-#This table contains only signature genes; right now there is a bug so it doesn't work.
+#This table contains only signature genes
 head(output[[2]])
 #>     correlation   gene rank
 #> 470   0.7223057 WFDC12    1
