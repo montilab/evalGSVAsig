@@ -11,7 +11,7 @@ GSVAsignatureRanking(eset, signature, metacol)
 
 \item{signature}{a list of signatures (at least 1)}
 
-\item{metacol}{name of metadata column in eset for which to add top annotation}
+\item{metacol}{name of metadata column in eset to annotate top of heatmap}
 }
 \value{
 a list of a dataframe and two heatmaps
