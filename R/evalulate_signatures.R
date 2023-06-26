@@ -59,7 +59,7 @@ GSVAsignatureRanking <- function(
   #order columns
   sampledf <- as.data.frame(eset$signature_gsvascore)
   sampledf$samples <- rownames(sampledf)
-  if (in.na(metacol)) {
+  if (is.na(metacol)) {
     sampledf <- sampledf[order(-sampledf[,1]),]
     names(sampledf) <- c("score", "samples")
   }
@@ -78,7 +78,7 @@ GSVAsignatureRanking <- function(
   df3$insig <-  with(df3, ifelse(df3$gene %in% signature[[1]], 'SignatureGene', 'BG'))
 
   #add top annotation
-  if (in.na(metacol)) {
+  if (is.na(metacol)) {
     column_ha = HeatmapAnnotation(gsva = anno_barplot(sampledf$score))
   }
   else {
@@ -108,7 +108,7 @@ GSVAsignatureRanking <- function(
   #order columns
   sampledf <- as.data.frame(eset$signature_gsvascore)
   sampledf$samples <- rownames(sampledf)
-  if (in.na(metacol)) {
+  if (is.na(metacol)) {
     sampledf <- sampledf[order(-sampledf[,1]),]
     names(sampledf) <- c("score", "samples")
   }
@@ -126,7 +126,7 @@ GSVAsignatureRanking <- function(
   df3 <- df2[order(-df2$correlation),]
   df3$insig <-  with(df3, ifelse(df3$gene %in% signature[[1]], 'SignatureGene', 'BG'))
 
-  if (in.na(metacol)) {
+  if (is.na(metacol)) {
     column_ha = HeatmapAnnotation(gsva = anno_barplot(sampledf$score))
   }
   else {
