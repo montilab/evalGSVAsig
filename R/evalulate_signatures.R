@@ -103,7 +103,7 @@ GSVAsignatureRanking <- function(
   df3 <- df2[order(-df2$correlation),]
   df3$insig <-  with(df3, ifelse(df3$gene %in% signature[[1]], 'SignatureGene', 'BG'))
 
-  column_ha = HeatmapAnnotation(ano = data.frame(eset$metacol), gsva = anno_barplot(sampledf$score))
+  column_ha = HeatmapAnnotation(ano = data.frame(eset[[metacol]]), gsva = anno_barplot(sampledf$score))
   #top_annotation = HeatmapAnnotation(gsva = anno_barplot(sampledf$score))
   ht_list1 = ComplexHeatmap::Heatmap(mat_scaled, name = "mat", #top_annotation = HeatmapAnnotation(gsva = anno_barplot(sampledf$score)),
                                      show_column_dend = FALSE,cluster_rows = FALSE,
