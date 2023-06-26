@@ -12,7 +12,7 @@
 GSVAsignatureRanking <- function(
     eset,
     signature,
-    metacol,
+    metacol
 )   {
   #set up empty list in which to store things function will return
   returnobject <- list()
@@ -107,8 +107,8 @@ GSVAsignatureRanking <- function(
   column_ha = HeatmapAnnotation(ano = data.frame(eset[[metacol]]), gsva = anno_barplot(sampledf$score))
   #top_annotation = HeatmapAnnotation(gsva = anno_barplot(sampledf$score))
   ht_list1 = ComplexHeatmap::Heatmap(mat_scaled, name = "mat", #top_annotation = HeatmapAnnotation(gsva = anno_barplot(sampledf$score)),
-                                     show_column_dend = FALSE,cluster_rows = FALSE,
                                      top_annotation = column_ha,
+                                     show_column_dend = FALSE,cluster_rows = FALSE,
                                      cluster_columns = FALSE, cluster_column_slices = FALSE,
                                      show_row_dend = FALSE, row_title = "Signature Genes") +
     rowAnnotation(siggene = df3$insig) + rowAnnotation(correlation = anno_barplot(df3$correlation))
