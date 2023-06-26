@@ -4,12 +4,14 @@
 \alias{GSVAsignatureRanking}
 \title{This function evaluates the contributions of genes in GSVA scores}
 \usage{
-GSVAsignatureRanking(eset, signature)
+GSVAsignatureRanking(eset, signature, metacol)
 }
 \arguments{
 \item{eset}{an expression set}
 
 \item{signature}{a list of signatures (at least 1)}
+
+\item{metacol}{name of metadata column in eset for which to add top annotation}
 }
 \value{
 a list of a dataframe and two heatmaps
