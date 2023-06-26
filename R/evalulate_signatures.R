@@ -62,8 +62,7 @@ GSVAsignatureRanking <- function(
   if (is.na(metacol)) {
     sampledf <- sampledf[order(-sampledf[,1]),]
     names(sampledf) <- c("score", "samples")
-  }
-  else {
+  } else {
     sampledf$ano <- eset[[metacol]]
     sampledf <- sampledf[order(-sampledf[,1]),]
     names(sampledf) <- c("score", "samples", "ano")
@@ -80,8 +79,7 @@ GSVAsignatureRanking <- function(
   #add top annotation
   if (is.na(metacol)) {
     column_ha = HeatmapAnnotation(gsva = anno_barplot(sampledf$score))
-  }
-  else {
+  } else {
     column_ha = HeatmapAnnotation(ano = sampledf$ano, gsva = anno_barplot(sampledf$score))
   }
 
@@ -89,7 +87,7 @@ GSVAsignatureRanking <- function(
                                     top_annotation = column_ha,
                                     show_column_dend = FALSE,cluster_rows = FALSE, cluster_columns = FALSE,
                                     cluster_column_slices = FALSE, show_row_dend = FALSE, row_title = "Genes") +
-    rowAnnotation(siggene = df3$insig, col= c(SignatureGene = "gold", BG = "darkgreen")) + rowAnnotation(correlation = anno_barplot(df3$correlation))
+    rowAnnotation(siggene = df3$insig, col = c(list("BG" = 'purple', "SignatureGene" = "yellow"))) + rowAnnotation(correlation = anno_barplot(df3$correlation))
 
   #store heatmap
   returnobject[[3]] <- ht_list
