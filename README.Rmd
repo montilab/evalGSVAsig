@@ -80,13 +80,13 @@ head(output[[2]])
 
 View heatmap that plots all signature and non-signature genes:
 
-```{r heatmaps}
+```{r heatmaps, dpi=300}
 output[[3]]
 ```
 
 View heatmap that plots only signature genes:
 
-```{r heatmap2}
+```{r heatmap2, dpi=300}
 output[[4]]
 ```
 
