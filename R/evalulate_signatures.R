@@ -6,7 +6,7 @@
 #'
 #' @return a list of a dataframe and two heatmaps
 #' @export
-#' @import GSVA ComplexHeatmap stats Biobase dplyr
+#' @import GSVA ComplexHeatmap stats Biobase dplyr grid
 #'
 #' @examples
 GSVAsignatureRanking <- function(
@@ -74,20 +74,26 @@ GSVAsignatureRanking <- function(
   colnames(test_ordered2) = NULL
   mat_scaled = t(scale(t(test_ordered2)))
   df3 <- df1[order(-df1$correlation),]
-  df3$insig <-  with(df3, ifelse(df3$gene %in% signature[[1]], 'SignatureGene', 'BG'))
+  df3$insig <-  with(df3, ifelse(df3$gene %in% signature[[1]], 'SignatureGene', 'Background'))
 
   #add top annotation
   if (is.na(metacol)) {
-    column_ha = HeatmapAnnotation(gsva = anno_barplot(sampledf$score))
+    column_ha = HeatmapAnnotation(GsvaScore = anno_barplot(sampledf$score))
   } else {
-    column_ha = HeatmapAnnotation(ano = sampledf$ano, gsva = anno_barplot(sampledf$score))
+    column_ha = HeatmapAnnotation(GsvaScore = anno_barplot(sampledf$score), Annotation = sampledf$ano)
   }
 
-  ht_list = ComplexHeatmap::Heatmap(mat_scaled, name = "mat", #top_annotation = HeatmapAnnotation(GsvaScore = anno_barplot(sampledf$score)),
+  row_ha = HeatmapAnnotation(genes = df3$insig,
+                         col = list(genes = c("Background" = "darkred", "SignatureGene" = "lightgreen")),
+                         show_annotation_name = F, which = 'row')
+
+  ht_list = ComplexHeatmap::Heatmap(mat_scaled, name = "expression",
                                     top_annotation = column_ha,
                                     show_column_dend = FALSE,cluster_rows = FALSE, cluster_columns = FALSE,
                                     cluster_column_slices = FALSE, show_row_dend = FALSE, row_title = "Genes") +
-    rowAnnotation(siggene = df3$insig, col = c(list("BG" = 'purple', "SignatureGene" = "yellow"))) + rowAnnotation(correlation = anno_barplot(df3$correlation))
+    row_ha +
+    rowAnnotation(correlation = anno_barplot(df3$correlation))
+
 
   #store heatmap
   returnobject[[3]] <- ht_list
@@ -109,8 +115,7 @@ GSVAsignatureRanking <- function(
   if (is.na(metacol)) {
     sampledf <- sampledf[order(-sampledf[,1]),]
     names(sampledf) <- c("score", "samples")
-  }
-  else {
+  } else {
     sampledf$ano <- eset[[metacol]]
     sampledf <- sampledf[order(-sampledf[,1]),]
     names(sampledf) <- c("score", "samples", "ano")
@@ -122,20 +127,23 @@ GSVAsignatureRanking <- function(
   colnames(test_ordered2) = NULL
   mat_scaled = t(scale(t(test_ordered2)))
   df3 <- df2[order(-df2$correlation),]
-  df3$insig <-  with(df3, ifelse(df3$gene %in% signature[[1]], 'SignatureGene', 'BG'))
+  df3$insig <-  with(df3, ifelse(df3$gene %in% signature[[1]], 'SignatureGene', 'BackgroundGene'))
 
   if (is.na(metacol)) {
-    column_ha = HeatmapAnnotation(gsva = anno_barplot(sampledf$score))
+    column_ha = HeatmapAnnotation(GsvaScore = anno_barplot(sampledf$score))
+  } else {
+    column_ha = HeatmapAnnotation(GsvaScore = anno_barplot(sampledf$score), Annotation = sampledf$ano)
   }
-  else {
-    column_ha = HeatmapAnnotation(ano = sampledf$ano, gsva = anno_barplot(sampledf$score))
-  }
-  #top_annotation = HeatmapAnnotation(gsva = anno_barplot(sampledf$score))
-  ht_list1 = ComplexHeatmap::Heatmap(mat_scaled, name = "mat", #top_annotation = HeatmapAnnotation(gsva = anno_barplot(sampledf$score)),
+
+  ht_list1 = ComplexHeatmap::Heatmap(mat_scaled, name = "expression",
                                      top_annotation = column_ha,
                                      show_column_dend = FALSE,cluster_rows = FALSE,
                                      cluster_columns = FALSE, cluster_column_slices = FALSE,
-                                     show_row_dend = FALSE, row_title = "Signature Genes") +
+                                     show_row_dend = FALSE, row_title = "Signature Genes",
+                                     row_title_gp=grid::gpar(fontsize=12,fontface="bold"),
+                                     row_names_gp = grid::gpar(fontsize = 4),
+                                     show_row_names=TRUE,
+                                     row_names_side="left") +
     rowAnnotation(correlation = anno_barplot(df3$correlation))
 
   #store heatmap
