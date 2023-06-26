@@ -2,6 +2,7 @@
 #'
 #' @param eset an expression set
 #' @param signature a list of signatures (at least 1)
+#' @param metacol name of metadata column in eset for which to add top annotation
 #'
 #' @return a list of a dataframe and two heatmaps
 #' @export
