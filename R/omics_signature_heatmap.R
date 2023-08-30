@@ -59,8 +59,10 @@ omics_signature_heatmap <- function(
     col_ha <- ComplexHeatmap::HeatmapAnnotation(
       sig_score = anno_barplot(eset_srt$sig_score))
   } else {
+    ## augment input column annotation with barplot
     col_ha <- c(
       ComplexHeatmap::HeatmapAnnotation(sig_score = anno_barplot(eset_srt$sig_score)),
+      ## next command is not a robust solution, but couldn't find a better way
       col_ha[match(sampleNames(eset_srt),sampleNames(eset)),])
   }
   row_ha <- HeatmapAnnotation(
