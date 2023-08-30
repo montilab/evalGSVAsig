@@ -56,19 +56,21 @@ omics_signature_heatmap <- function(
     ifelse(featureNames(eset_srt) %in% signature[[1]], 'signature', 'background')
   )
   if ( is.null(col_ha)) {
+    ## the only column annotation will be the sig_score barplot
     col_ha <- ComplexHeatmap::HeatmapAnnotation(
       sig_score = anno_barplot(eset_srt$sig_score))
   } else {
-    ## augment input column annotation with barplot
+    ## augment input column annotation with sig_score barplot
     col_ha <- c(
       ComplexHeatmap::HeatmapAnnotation(sig_score = anno_barplot(eset_srt$sig_score)),
       ## next command is not a robust solution, but couldn't find a better way
       col_ha[match(sampleNames(eset_srt),sampleNames(eset)),])
   }
-  row_ha <- HeatmapAnnotation(
+  row_ha <- ComplexHeatmap::rowAnnotation(
     genes = fData(eset_srt)$insig,
+    correlation = anno_barplot(fData(eset_srt)$score_cor),
     col = list(genes = c("background" = "brown", "signature" = "lightgreen")),
-    show_annotation_name = FALSE, which = 'row'
+    show_annotation_name = FALSE
   )
   full_heatmap <- ComplexHeatmap::Heatmap(
     matrix = t(scale(t(exprs(eset_srt)))),
@@ -80,8 +82,7 @@ omics_signature_heatmap <- function(
     row_title = "Genes",
     show_row_names = FALSE,
     column_names_gp = grid::gpar(fontsize = 8)) +
-    row_ha +
-    ComplexHeatmap::rowAnnotation(correlation = anno_barplot(fData(eset_srt)$score_cor))
+    row_ha
 
   ## 2) with only signature genes
   eset_flt <- eset_srt[featureNames(eset_srt) %in% signature[[1]],]
