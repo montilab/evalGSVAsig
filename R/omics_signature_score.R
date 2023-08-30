@@ -17,7 +17,7 @@ omics_signature_score <- function(
     ...)
 {
   ## input checks
-  stopifnot( is.ExpressionSet(eset) )
+  stopifnot( is(eset,"ExpressionSet") )
   stopifnot( isTRUE(all(signature %in% featureNames(eset))) )
   method <- match.arg(method)
 
