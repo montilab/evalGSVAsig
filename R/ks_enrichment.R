@@ -1,5 +1,54 @@
 ## NOTE: copied from hypeR/R/ks_enrichment.R
 ##
+#' An empty ggplot
+#'
+#' @return A ggplot object
+#'
+#' @importFrom ggplot2 ggplot theme_void
+#'
+#' @export
+ggempty <- function() {
+  ggplot2::ggplot() +
+    ggplot2::theme_void()
+}
+#' Enrichment plot implemented in ggplot
+#'
+#' @param n The length of a ranked list
+#' @param positions A vector of positions in the ranked list
+#' @param x_axis The x-axis of a running enrichment score
+#' @param y_axis The y-axis of a running enrichment score
+#' @param title Plot title
+#' @return A ggplot object
+#'
+#' @importFrom ggplot2 qplot aes geom_rug geom_hline geom_vline annotate theme element_text element_blank element_line element_rect
+#'
+#' @export
+ggeplot <- function(n, positions, x_axis, y_axis, title="") {
+  score <- which.max(abs(y_axis))
+  ggplot2::qplot(x_axis,
+                 y_axis,
+                 main=title,
+                 ylab="Running Enrichment Score",
+                 xlab="Position in Ranked List of Genes",
+                 geom="line")+
+    geom_rug(data=data.frame(positions), aes(x=positions), inherit.aes=FALSE)+
+    geom_hline(yintercept=0) +
+    geom_vline(xintercept=n/2, linetype="dotted") +
+    annotate("point", x=x_axis[score], y=y_axis[score], color="red") +
+    annotate("text", x=x_axis[score]+n/20, y=y_axis[score], label=round(y_axis[score],2)) +
+    annotate("point", x=x_axis[score], y=y_axis[score], color="red") +
+    theme(plot.title=element_text(hjust=0.5),
+          panel.background=element_blank(),
+          axis.line=element_line(color="black"),
+          panel.border=element_rect(color="black", fill=NA, size=1))
+}
+## this needs to extrapolate so that x and y are same lenght as n
+ks_anno_lines <- function( n, positions, x_axis, y_axis, title="" )
+{
+  score <- which.max(abs(y_axis))
+  anno_lines( x = data.frame(x = x_axis, y = y_axis) |> as.matrix(),
+              which = "row", smooth = TRUE)
+}
 #' One-sided Kolmogorov–Smirnov test
 #'
 #' @param n.x The length of a ranked list
@@ -16,31 +65,42 @@
 #' @keywords internal
 .kstest <- function(n.x,
                     y,
-                    weights=NULL,
-                    weights.pwr=1,
-                    absolute=FALSE,
-                    plotting=FALSE,
-                    plot.title="") {
-
+                    weights = NULL,
+                    weights.pwr = 1,
+                    absolute = FALSE, # this is not really implemented, should be removed
+                    plotting = FALSE,
+                    plot.title = "") {
   n.y <- length(y)
-  err = list(score=0, pval=1, edge=0, plot=ggempty())
-  if (n.y < 1 ) return(err)
-  if (any(y > n.x)) return(err)
-  if (any(y < 1)) return(err)
+  err <- list(score = 0, pval = 1, leading_edge = NULL, leading_hits = NA, plot = ggempty())
+
+  if (n.y < 1) {
+    return(err)
+  }
+  if (any(y > n.x)) {
+    return(err)
+  }
+  if (any(y < 1)) {
+    return(err)
+  }
 
   x.axis <- y.axis <- NULL
+  leading_edge <- NULL # recording the x corresponding to the highest y value
 
   # If weights are provided
   if (!is.null(weights)) {
     weights <- abs(weights[y])^weights.pwr
 
-    Pmis <- rep(1, n.x); Pmis[y] <- 0; Pmis <- cumsum(Pmis); Pmis <- Pmis/(n.x-n.y)
-    Phit <- rep(0, n.x); Phit[y] <- weights; Phit <- cumsum(Phit); Phit <- Phit/Phit[n.x]
-    z <- Phit-Pmis
+    Pmis <- rep(1, n.x)
+    Pmis[y] <- 0
+    Pmis <- cumsum(Pmis)
+    Pmis <- Pmis / (n.x - n.y)
+    Phit <- rep(0, n.x)
+    Phit[y] <- weights
+    Phit <- cumsum(Phit)
+    Phit <- Phit / Phit[n.x]
+    z <- Phit - Pmis
 
-    leading_z_idx <- which.max(abs(z))
-    leading_edge_idx <- which(unique(Phit==Phit[leading_z_idx]))
-    score <- if (absolute) max(z)-min(z) else z[leading_z_idx]
+    score <- if (absolute) max(z) - min(z) else z[leading_edge <- which.max(abs(z))]
 
     x.axis <- 1:n.x
     y.axis <- z
@@ -48,23 +108,21 @@
     # Without weights
   } else {
     y <- sort(y)
-    n <- n.x*n.y/(n.x + n.y)
-    hit <- 1/n.y
-    mis <- 1/n.x
+    n <- n.x * n.y / (n.x + n.y)
+    hit <- 1 / n.y
+    mis <- 1 / n.x
 
-    Y <- sort(c(y-1, y))
-    Y <- Y[diff(Y) != 0]
-    y.match <- match(y, Y)
+    Y <- sort(c(y - 1, y)) # append the positions preceding hits
+    Y <- Y[diff(Y) != 0] # remove repeated position
+    y.match <- match(y, Y) # find the hits' positions
     D <- rep(0, length(Y))
     D[y.match] <- (1:n.y)
     zero <- which(D == 0)[-1]
-    D[zero] <- D[zero-1]
+    D[zero] <- D[zero - 1]
 
-    z <- D*hit-Y*mis
+    z <- D * hit - Y * mis
 
-    leading_z_idx <- which.max(abs(z))
-    leading_edge_idx <- D[leading_z_idx]
-    score <- if (absolute) max(z)-min(z) else z[leading_z_idx]
+    score <- if (absolute) max(z) - min(z) else z[leading_edge <- which.max(abs(z))]
 
     x.axis <- Y
     y.axis <- z
@@ -78,20 +136,32 @@
       y.axis <- c(y.axis, 0)
     }
   }
+  leading_edge <- x.axis[leading_edge]
+  leading_hits <- intersect(x.axis[x.axis <= leading_edge], y)
 
   # One-sided Kolmogorov–Smirnov test
-  results <- suppressWarnings(ks.test(1:n.x, y, alternative="less"))
-  results$statistic <- score  # Use the signed statistic
+  results <- suppressWarnings(ks.test(1:n.x, y, alternative = "less"))
+  results$statistic <- score # Use the signed statistic
 
   # Enrichment plot
-  p <- if (plotting) ggeplot(n.x, y, x.axis, y.axis, plot.title) else ggempty()
-
-  return(list(score=as.numeric(results$statistic),
-              pval=results$p.value,
-              edge=leading_edge_idx,
-              plot=p))
+  if (FALSE) {
+  p <- if (plotting) {
+    ggeplot(n.x, y, x.axis, y.axis, plot.title) +
+      geom_vline(xintercept = leading_edge, linetype = "dotted", color = "red", size = 0.25)
+  } else {
+    ggempty()
+  }}
+  p <- ks_anno_lines(n.x, y, x.axis, y.axis)
+  return(list(
+    score = as.numeric(results$statistic),
+    pval = results$p.value,
+    leading_edge = leading_edge,
+    leading_hits = leading_hits,
+    x_axis = x.axis,
+    y_axis = y.axis,
+    plot = p
+  ))
 }
-
 #' Enrichment test via one-sided Kolmogorov–Smirnov test
 #'
 #' @param signature A vector of ranked symbols
@@ -108,8 +178,8 @@
                            weights=NULL,
                            weights.pwr=1,
                            absolute=FALSE,
-                           plotting=TRUE) {
-
+                           plotting=TRUE)
+{
   if (!is(genesets, "list")) stop("Error: Expected genesets to be a list of gene sets\n")
   if (!is.null(weights)) stopifnot(length(signature) == length(weights))
 
@@ -121,7 +191,7 @@
     ranks <- match(geneset, signature)
     ranks <- ranks[!is.na(ranks)]
 
-    # Run ks-test
+    ## Run ks-test
     results <- .kstest(n.x=length(signature),
                        y=ranks,
                        weights=weights,
@@ -130,31 +200,40 @@
                        plotting=plotting,
                        plot.title=title)
 
-    edge_idx <- results[['edge']]
-
-    if(edge_idx == 0) {
-      results[['hits']] <- NA
-    } else {
-      ranks <- sort(ranks)
-      results[['hits']] <- signature[ranks[1:edge_idx]]
-    }
-
     results[['geneset']] <- length(geneset)
-    results[['overlap']] <- length(ranks)
+    edge_idx <- results[['leading_edge']]
+
+    if(is.null(edge_idx)) {
+      results[['hits']] <- NA
+      results[['overlap']] <- 0
+    } else if (!is.null(edge_idx) & edge_idx == 0) {
+      results[['hits']] <- NA
+      results[['overlap']] <- 0
+    } else {
+      results[['hits']] <- paste0("'", signature[results[['leading_hits']]], "'", collapse=',')
+      results[['overlap']] <- edge_idx
+    }
     return(results)
 
   }, genesets, names(genesets), USE.NAMES=TRUE, SIMPLIFY=FALSE)
 
   results <- do.call(rbind, results)
-  data <- data.frame(apply(results[,c("score", "pval", "geneset", "overlap")], 2, unlist), stringsAsFactors=FALSE)
-  data$score <- signif(data$score, 2)
+  data <- data.frame(apply(results[,c("score", "pval", "geneset", "overlap")], 2, unlist),
+                     stringsAsFactors = FALSE)
+  ## add list of genes in the leading edge
   data$hits <- results[,"hits"]
+  data$score <- signif(data$score, 2)
   data$pval <- signif(data$pval, 2)
-  data$fdr <- signif(p.adjust(data$pval, method="fdr"), 2)
   data$label <- names(genesets)
   data$signature <- length(signature)
-  data <- data[,c("label", "pval", "fdr", "signature", "geneset", "overlap", "score", "hits")]
+  data$fdr <- signif(p.adjust(data$pval, method="fdr"), 2)
+  data <- data %>%
+    dplyr::relocate(fdr,.after=pval) %>%
+    dplyr::relocate(signature,.after=geneset) %>%
+    dplyr::relocate(label)
   plots <- results[,"plot"]
 
-  return(list(data=data, plots=plots))
+  return(list(data=data,
+              plots=plots))
 }
+

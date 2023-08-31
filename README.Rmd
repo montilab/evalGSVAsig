@@ -33,29 +33,30 @@ devtools::install_github("lkroeh/evalGSVAsig")
 
 This is a basic example which shows the format of the data:
 
-```{r example, eval = FALSE, message=FALSE, warnings=FALSE }
+```{r example, eval=FALSE, message=FALSE, warnings=FALSE }
 library(evalGSVAsig)
 
-#example gene list
+## example gene list
 sig <- c("GENE1", "GENE2", "GENE3")
 signature_list <- c(list(sig))
 names(signature_list) <- c("signature1")
 
-#run function
+## run function
 output <- evalGSVAsig::GSVAsignatureRanking(eset, signature_list)
 
-#view output
-#print df of genes ordered by correlation to GSVA scores
-output[[1]]
+## view output
 
-#show heatmap of ALL gene expression in relation to GSVA score
-output[[2]]
+## show sample specific signature score
+print(output$sig_score)
+
+## show genes' correlation to signature score
+print(output$score_cor)
+
+## show heatmap of ALL gene expression in relation to GSVA score
+output$heatmap_all_genes
 
 #show heatmap of SIGNATURE gene expression in relation to GSVA score
-output[[3]]
-
-#get expression with GSVA scores saved in pData
-output[[4]]
+output$heatmap_sig_genes
 ```
 
 With sample data:

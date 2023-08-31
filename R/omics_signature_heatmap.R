@@ -21,10 +21,13 @@ omics_signature_heatmap <- function(
     ...
 )
 {
+  ## support function
+  replace_na <- function( vec, value = 0 ) replace( vec, is.na(vec), values = value)
+
   ## input checks
   stopifnot( is(eset, "SummarizedExperiment") || is(eset, "ExpressionSet") )
   stopifnot( is.null(sig_score) || length(sig_score)==ncol(eset) )
-  stopifnot( isTRUE(all.equal(names(sig_score), sampleNames(eset))) )
+  stopifnot( is.null(sig_score) || isTRUE(all.equal(names(sig_score), sampleNames(eset))) )
   stopifnot( is.null(col_ha) || isTRUE(all(rownames(col_ha) %in% sampleNames(eset))))
 
   if ( is(eset, "SummarizedExperiment") ) {
@@ -36,15 +39,26 @@ omics_signature_heatmap <- function(
   }
   ## compute score if not provided
   if ( is.null(sig_score) ) {
-    sig_score <- compute_signature_score( eset = eset, signature = signature, method = method, ... )
+    sig_score <- omics_signature_score( eset = eset, signature = signature, method = method, ... )
   }
   ## add signature score to eset metadata
   eset$sig_score <- sig_score
 
+  ## this would be more robust, but perhaps an overkill
+  ## pData(eset) <- dplyr::left_join(
+  ##   pData(eset) |> tibble::rownames_to_column(var = "sampleID"),
+  ##   sig_score |> tibble::rownames_to_column(var = "sampleID"),
+  ##   by = "sampleID") |>
+  ##   tibble::column_to_rownames(var = "sampleID")
+
+  stopifnot( all(!is.na(eset$sig_score)) )
+
   ## add correlation (and rank) of each gene with signature score to fData
   fData(eset)$score_cor <-
     cor(eset$sig_score, t(exprs(eset)))[1,]
-
+  fData(eset)$insig <- factor(
+    ifelse(featureNames(eset) %in% signature[[1]], 'signature', 'background')
+  )
   ## PLOTS
 
   ## 1) with all genes
@@ -52,8 +66,10 @@ omics_signature_heatmap <- function(
     order(fData(eset)$score_cor, decreasing = TRUE), # high to low correlation
     order(eset$sig_score, decreasing = TRUE)         # high to low sig score
   ]
-  fData(eset_srt)$insig <- factor(
-    ifelse(featureNames(eset_srt) %in% signature[[1]], 'signature', 'background')
+  ks_out <-   .kstest(
+    n.x = nrow(eset),
+    y = rank(-fData(eset)$score_cor)[fData(eset)$insig == "signature"],
+    plotting = TRUE
   )
   if ( is.null(col_ha)) {
     ## the only column annotation will be the sig_score barplot
@@ -68,6 +84,7 @@ omics_signature_heatmap <- function(
   }
   row_ha <- ComplexHeatmap::rowAnnotation(
     genes = fData(eset_srt)$insig,
+#    ks = ks_out$plot,
     correlation = anno_barplot(fData(eset_srt)$score_cor),
     col = list(genes = c("background" = "brown", "signature" = "lightgreen")),
     show_annotation_name = FALSE
@@ -105,6 +122,8 @@ omics_signature_heatmap <- function(
       correlation = anno_barplot(fData(eset_flt)$score_cor))
 
   return(list(
+    sig_score = pData(eset) |> dplyr::select(sig_score),
+    score_cor = fData(eset) |> dplyr::select(score_cor, insig),
     heatmap_all_genes = full_heatmap,
     heatmap_sig_genes = sig_heatmap
   ))

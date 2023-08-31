@@ -18,7 +18,8 @@ omics_signature_score <- function(
 {
   ## input checks
   stopifnot( is(eset,"ExpressionSet") )
-  stopifnot( isTRUE(all(signature %in% featureNames(eset))) )
+  stopifnot( length(signature)==1 ) # working w/ single signature only at the moment
+  stopifnot( isTRUE(all(signature[[1]] %in% featureNames(eset))) )
   method <- match.arg(method)
 
   sig_score <- {
@@ -27,6 +28,7 @@ omics_signature_score <- function(
       stopifnot(nrow(tmp)==1) # working w/ single signature only at the moment
       t(exprs(tmp)) |>
         data.frame(check.names = FALSE) |>
+        tibble::rownames_to_column() |>
         tibble::deframe()
     } else {
       stop( "unrecognized method:", method)
