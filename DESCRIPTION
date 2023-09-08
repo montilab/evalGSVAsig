@@ -14,7 +14,16 @@ License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: false
 RoxygenNote: 7.2.3
-Imports: GSVA, ComplexHeatmap, stats, Biobase, dplyr, grid
+Imports: 
+    GSVA, 
+    ComplexHeatmap, 
+    stats, 
+    methods,
+    Biobase, 
+    SummarizedExperiment,
+    dplyr, 
+    tibble,
+    grid 
 Suggests: 
     rmarkdown,
     knitr,

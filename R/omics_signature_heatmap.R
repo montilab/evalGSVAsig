@@ -8,10 +8,15 @@
 #' @param ... additional parameters to pass to the method
 #'
 #' @return a list of a dataframe and two heatmaps
-#' @export
-#' @import ComplexHeatmap SummarizedExperiment Biobase stats dplyr grid
 #'
-#' @examples
+#' @import Biobase
+#' @importFrom ComplexHeatmap Heatmap HeatmapAnnotation rowAnnotation anno_barplot
+#' @importFrom SummarizedExperiment assay colData rowData
+#' @importFrom stats cor
+#' @importFrom methods is
+#' @importFrom grid gpar
+#'
+#' @export
 omics_signature_heatmap <- function(
     eset,
     signature,
@@ -22,12 +27,12 @@ omics_signature_heatmap <- function(
 )
 {
   ## input checks
-  stopifnot( is(eset, "SummarizedExperiment") || is(eset, "ExpressionSet") )
+  stopifnot( methods::is(eset, "SummarizedExperiment") || methods::is(eset, "ExpressionSet") )
   stopifnot( is.null(sig_score) || length(sig_score)==ncol(eset) )
-  stopifnot( isTRUE(all.equal(names(sig_score), sampleNames(eset))) )
-  stopifnot( is.null(col_ha) || isTRUE(all(rownames(col_ha) %in% sampleNames(eset))))
+  stopifnot( isTRUE(all.equal(names(sig_score), Biobase::sampleNames(eset))) )
+  stopifnot( is.null(col_ha) || isTRUE(all(rownames(col_ha) %in% Biobase::sampleNames(eset))))
 
-  if ( is(eset, "SummarizedExperiment") ) {
+  if ( methods::is(eset, "SummarizedExperiment") ) {
     eset <- Biobase::ExpressionSet(
       assayData = SummarizedExperiment::assay(eset),
       phenoData = Biobase::AnnotatedDataFrame(colData(eset)),
@@ -36,39 +41,40 @@ omics_signature_heatmap <- function(
   }
   ## compute score if not provided
   if ( is.null(sig_score) ) {
-    sig_score <- compute_signature_score( eset = eset, signature = signature, method = method, ... )
+    sig_score <- omics_signature_score( eset = eset, signature = signature, method = method, ... )
   }
   ## add signature score to eset metadata
   eset$sig_score <- sig_score
 
   ## add correlation (and rank) of each gene with signature score to fData
-  fData(eset)$score_cor <-
-    cor(eset$sig_score, t(exprs(eset)))[1,]
+  Biobase::fData(eset)$score_cor <-
+    stats::cor(eset$sig_score, t(exprs(eset)))[1,]
 
   ## PLOTS
 
   ## 1) with all genes
   eset_srt <- eset[
-    order(fData(eset)$score_cor, decreasing = TRUE), # high to low correlation
+    order(Biobase::fData(eset)$score_cor, decreasing = TRUE), # high to low correlation
     order(eset$sig_score, decreasing = TRUE)         # high to low sig score
   ]
-  fData(eset_srt)$insig <- factor(
-    ifelse(featureNames(eset_srt) %in% signature[[1]], 'signature', 'background')
+  Biobase::fData(eset_srt)$insig <- factor(
+    ifelse(Biobase::featureNames(eset_srt) %in% signature[[1]], 'signature', 'background')
   )
   if ( is.null(col_ha)) {
     ## the only column annotation will be the sig_score barplot
     col_ha <- ComplexHeatmap::HeatmapAnnotation(
-      sig_score = anno_barplot(eset_srt$sig_score))
+      sig_score = ComplexHeatmap::anno_barplot(eset_srt$sig_score))
   } else {
     ## augment input column annotation with sig_score barplot
     col_ha <- c(
-      ComplexHeatmap::HeatmapAnnotation(sig_score = anno_barplot(eset_srt$sig_score)),
+      ComplexHeatmap::HeatmapAnnotation(
+        sig_score = ComplexHeatmap::anno_barplot(eset_srt$sig_score)),
       ## next command is not a robust solution, but couldn't find a better way
-      col_ha[match(sampleNames(eset_srt),sampleNames(eset)),])
+      col_ha[match(Biobase::sampleNames(eset_srt),Biobase::sampleNames(eset)),])
   }
   row_ha <- ComplexHeatmap::rowAnnotation(
-    genes = fData(eset_srt)$insig,
-    correlation = anno_barplot(fData(eset_srt)$score_cor),
+    genes = Biobase::fData(eset_srt)$insig,
+    correlation = ComplexHeatmap::anno_barplot(Biobase::fData(eset_srt)$score_cor),
     col = list(genes = c("background" = "brown", "signature" = "lightgreen")),
     show_annotation_name = FALSE
   )
@@ -85,7 +91,7 @@ omics_signature_heatmap <- function(
     row_ha
 
   ## 2) with only signature genes
-  eset_flt <- eset_srt[featureNames(eset_srt) %in% signature[[1]],]
+  eset_flt <- eset_srt[Biobase::featureNames(eset_srt) %in% signature[[1]],]
   stopifnot( nrow(eset_flt) > max(5, length(signature) * .25) )
 
   sig_heatmap <- ComplexHeatmap::Heatmap(
@@ -102,9 +108,11 @@ omics_signature_heatmap <- function(
     show_row_names = TRUE,
     row_names_side = "left") +
     ComplexHeatmap::rowAnnotation(
-      correlation = anno_barplot(fData(eset_flt)$score_cor))
+      correlation = ComplexHeatmap::anno_barplot(Biobase::fData(eset_flt)$score_cor))
 
   return(list(
+    score_cor = Biobase::fData(eset_srt) |> dplyr::select(score_cor),
+    sig_score = Biobase::pData(eset_srt) |> dplyr::select(sig_score),
     heatmap_all_genes = full_heatmap,
     heatmap_sig_genes = sig_heatmap
   ))

@@ -38,12 +38,14 @@ if ( FALSE )
     df = pData(eset) |> dplyr::select(pheno),
     col = list(pheno = c(head = "pink", tail = "green"))
   )
-  heatmaps <- omics_signature_heatmap(
+  output <- omics_signature_heatmap(
     eset = eset,
     signature = list(signature),
     sig_score = pData(eset) |> dplyr::select(sig_score) |> tibble::rownames_to_column() |> tibble::deframe(),
     col_ha = col_ha
   )
-  print(heatmaps$heatmap_all_genes)
-  print(heatmaps$heatmap_sig_genes)
+  print(head(output$score_cor))
+  print(output$sig_score)
+  print(output$heatmap_all_genes)
+  print(output$heatmap_sig_genes)
 }

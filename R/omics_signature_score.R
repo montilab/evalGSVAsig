@@ -6,10 +6,12 @@
 #' @param ... additional parameters to pass to the method
 #'
 #' @return a named numeric vector of scores (w/ the names corresponding to colnames(eset))
-#' @export
-#' @import GSVA Biobase tibble
+#' @importFrom GSVA gsva
+#' @importFrom Biobase ExpressionSet exprs featureNames
+#' @importFrom tibble deframe
+#' @importFrom methods is
 #'
-#' @examples
+#' @export
 omics_signature_score <- function(
     eset,
     signature,
@@ -17,8 +19,8 @@ omics_signature_score <- function(
     ...)
 {
   ## input checks
-  stopifnot( is(eset,"ExpressionSet") )
-  stopifnot( isTRUE(all(signature %in% featureNames(eset))) )
+  stopifnot( methods::is(eset,"ExpressionSet") )
+  stopifnot( isTRUE(all(signature %in% Biobase::featureNames(eset))) )
   method <- match.arg(method)
 
   sig_score <- {

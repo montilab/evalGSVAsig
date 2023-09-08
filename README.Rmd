@@ -41,21 +41,21 @@ sig <- c("GENE1", "GENE2", "GENE3")
 signature_list <- c(list(sig))
 names(signature_list) <- c("signature1")
 
-#run function
-output <- evalGSVAsig::GSVAsignatureRanking(eset, signature_list)
+## run function
+output <- evalGSVAsig::omics_signature_heatmap(eset = eset, signature = signature_list)
 
-#view output
-#print df of genes ordered by correlation to GSVA scores
-output[[1]]
+## view output
+## df of genes ordered by correlation to signature score
+print(output$score_cor)
+
+## df of samples ordered by signature score
+print(output$sig_score)
 
 #show heatmap of ALL gene expression in relation to GSVA score
-output[[2]]
+print(output$heatmap_all_genes)
 
 #show heatmap of SIGNATURE gene expression in relation to GSVA score
-output[[3]]
-
-#get expression with GSVA scores saved in pData
-output[[4]]
+print(output$heatmap_sig_genes)
 ```
 
 With sample data:
@@ -65,28 +65,32 @@ With sample data:
 data(signatures)
 data(eset)
 
-output <- evalGSVAsig::GSVAsignatureRanking(eset = eset, signature = signatures, metacol = 'hpv_status')
+output <- evalGSVAsig::omics_signature_heatmap(
+  eset = eset, 
+  signature = signatures, 
+  metacol = ComplexHeatmap::HeatmapAnnotation( 
+    df = pData(eset) |> dplyr::select(hpv_status),
+    col = list(pheno = c(pos = "pink", neg = "gray"))))
 ```
-
 
 View tables:
 
 ```{r tables}
-#This table contains all genes
-head(output[[1]])
-#This table contains only signature genes
-head(output[[2]])
+## Show some of the genes' correlation to the signature score
+print(head(output$score_cor))
+## Show some of the signature scores
+print(head(output$sig_score))
 ```
 
 View heatmap that plots all signature and non-signature genes:
 
-```{r heatmaps, dpi=300}
-output[[3]] 
+```{r full.heatmap, dpi=300}
+print(output$heatmap_all_genes)
 ```
 
 View heatmap that plots only signature genes:
 
-```{r heatmap2, dpi=300}
-output[[4]]
+```{r sig.heatmap, dpi=300}
+print(output$heatmap_sig_genes)
 ```
 
