@@ -6,8 +6,7 @@
 #'
 #' @importFrom ggplot2 ggplot theme_void
 #'
-#' @export
-ggempty <- function() {
+.ggempty <- function() {
   ggplot2::ggplot() +
     ggplot2::theme_void()
 }
@@ -22,28 +21,30 @@ ggempty <- function() {
 #'
 #' @importFrom ggplot2 qplot aes geom_rug geom_hline geom_vline annotate theme element_text element_blank element_line element_rect
 #'
-#' @export
-ggeplot <- function(n, positions, x_axis, y_axis, title="") {
+.ggeplot <- function(n, positions, x_axis, y_axis, title = "") {
   score <- which.max(abs(y_axis))
   ggplot2::qplot(x_axis,
-                 y_axis,
-                 main=title,
-                 ylab="Running Enrichment Score",
-                 xlab="Position in Ranked List of Genes",
-                 geom="line")+
-    geom_rug(data=data.frame(positions), aes(x=positions), inherit.aes=FALSE)+
-    geom_hline(yintercept=0) +
-    geom_vline(xintercept=n/2, linetype="dotted") +
-    annotate("point", x=x_axis[score], y=y_axis[score], color="red") +
-    annotate("text", x=x_axis[score]+n/20, y=y_axis[score], label=round(y_axis[score],2)) +
-    annotate("point", x=x_axis[score], y=y_axis[score], color="red") +
-    theme(plot.title=element_text(hjust=0.5),
-          panel.background=element_blank(),
-          axis.line=element_line(color="black"),
-          panel.border=element_rect(color="black", fill=NA, size=1))
+    y_axis,
+    main = title,
+    ylab = "Running Enrichment Score",
+    xlab = "Position in Ranked List of Genes",
+    geom = "line"
+  ) +
+    ggplot2::geom_rug(data = data.frame(positions), aes(x = positions), inherit.aes = FALSE) +
+    ggplot2::geom_hline(yintercept = 0) +
+    ggplot2::geom_vline(xintercept = n / 2, linetype = "dotted") +
+    ggplot2::annotate("point", x = x_axis[score], y = y_axis[score], color = "red") +
+    ggplot2::annotate("text", x = x_axis[score] + n / 20, y = y_axis[score], label = round(y_axis[score], 2)) +
+    ggplot2::annotate("point", x = x_axis[score], y = y_axis[score], color = "red") +
+    ggplot2::theme(
+      plot.title = ggplot2::element_text(hjust = 0.5),
+      panel.background = ggplot2::element_blank(),
+      axis.line = ggplot2::element_line(color = "black"),
+      panel.border = ggplot2::element_rect(color = "black", fill = NA, size = 1)
+    )
 }
 ## this needs to extrapolate so that x and y are same lenght as n
-ks_anno_lines <- function( n, positions, x_axis, y_axis, title="" )
+.ks_anno_lines <- function( n, positions, x_axis, y_axis, title="" )
 {
   score <- which.max(abs(y_axis))
   anno_lines( x = data.frame(x = x_axis, y = y_axis) |> as.matrix(),
@@ -71,7 +72,7 @@ ks_anno_lines <- function( n, positions, x_axis, y_axis, title="" )
                     plotting = FALSE,
                     plot.title = "") {
   n.y <- length(y)
-  err <- list(score = 0, pval = 1, leading_edge = NULL, leading_hits = NA, plot = ggempty())
+  err <- list(score = 0, pval = 1, leading_edge = NULL, leading_hits = NA, plot = .ggempty())
 
   if (n.y < 1) {
     return(err)
@@ -82,12 +83,11 @@ ks_anno_lines <- function( n, positions, x_axis, y_axis, title="" )
   if (any(y < 1)) {
     return(err)
   }
-
   x.axis <- y.axis <- NULL
   leading_edge <- NULL # recording the x corresponding to the highest y value
 
-  # If weights are provided
-  if (!is.null(weights)) {
+  ## If weights are provided
+  if ( !is.null(weights) ) {
     weights <- abs(weights[y])^weights.pwr
 
     Pmis <- rep(1, n.x)
@@ -104,9 +104,9 @@ ks_anno_lines <- function( n, positions, x_axis, y_axis, title="" )
 
     x.axis <- 1:n.x
     y.axis <- z
-
-    # Without weights
-  } else {
+  }
+  ## Without weights
+  else {
     y <- sort(y)
     n <- n.x * n.y / (n.x + n.y)
     hit <- 1 / n.y
@@ -144,14 +144,13 @@ ks_anno_lines <- function( n, positions, x_axis, y_axis, title="" )
   results$statistic <- score # Use the signed statistic
 
   # Enrichment plot
-  if (FALSE) {
   p <- if (plotting) {
-    ggeplot(n.x, y, x.axis, y.axis, plot.title) +
+    .ggeplot(n.x, y, x.axis, y.axis, plot.title) +
       geom_vline(xintercept = leading_edge, linetype = "dotted", color = "red", size = 0.25)
   } else {
-    ggempty()
-  }}
-  p <- ks_anno_lines(n.x, y, x.axis, y.axis)
+    .ggempty()
+  }
+  ##p <- .ks_anno_lines(n.x, y, x.axis, y.axis)
   return(list(
     score = as.numeric(results$statistic),
     pval = results$p.value,
@@ -161,79 +160,5 @@ ks_anno_lines <- function( n, positions, x_axis, y_axis, title="" )
     y_axis = y.axis,
     plot = p
   ))
-}
-#' Enrichment test via one-sided Kolmogorov–Smirnov test
-#'
-#' @param signature A vector of ranked symbols
-#' @param genesets A list of genesets
-#' @param weights Weights for weighted score (Subramanian et al.)
-#' @param weights.pwr Exponent for weights (Subramanian et al.)
-#' @param absolute Takes max-min score rather than the max deviation from null
-#' @param plotting Use true to generate plot
-#' @return A list of data and plots
-#'
-#' @keywords internal
-.ks_enrichment <- function(signature,
-                           genesets,
-                           weights=NULL,
-                           weights.pwr=1,
-                           absolute=FALSE,
-                           plotting=TRUE)
-{
-  if (!is(genesets, "list")) stop("Error: Expected genesets to be a list of gene sets\n")
-  if (!is.null(weights)) stopifnot(length(signature) == length(weights))
-
-  signature <- unique(signature)
-  genesets <- lapply(genesets, unique)
-
-  results <- mapply(function(geneset, title) {
-
-    ranks <- match(geneset, signature)
-    ranks <- ranks[!is.na(ranks)]
-
-    ## Run ks-test
-    results <- .kstest(n.x=length(signature),
-                       y=ranks,
-                       weights=weights,
-                       weights.pwr=weights.pwr,
-                       absolute=absolute,
-                       plotting=plotting,
-                       plot.title=title)
-
-    results[['geneset']] <- length(geneset)
-    edge_idx <- results[['leading_edge']]
-
-    if(is.null(edge_idx)) {
-      results[['hits']] <- NA
-      results[['overlap']] <- 0
-    } else if (!is.null(edge_idx) & edge_idx == 0) {
-      results[['hits']] <- NA
-      results[['overlap']] <- 0
-    } else {
-      results[['hits']] <- paste0("'", signature[results[['leading_hits']]], "'", collapse=',')
-      results[['overlap']] <- edge_idx
-    }
-    return(results)
-
-  }, genesets, names(genesets), USE.NAMES=TRUE, SIMPLIFY=FALSE)
-
-  results <- do.call(rbind, results)
-  data <- data.frame(apply(results[,c("score", "pval", "geneset", "overlap")], 2, unlist),
-                     stringsAsFactors = FALSE)
-  ## add list of genes in the leading edge
-  data$hits <- results[,"hits"]
-  data$score <- signif(data$score, 2)
-  data$pval <- signif(data$pval, 2)
-  data$label <- names(genesets)
-  data$signature <- length(signature)
-  data$fdr <- signif(p.adjust(data$pval, method="fdr"), 2)
-  data <- data %>%
-    dplyr::relocate(fdr,.after=pval) %>%
-    dplyr::relocate(signature,.after=geneset) %>%
-    dplyr::relocate(label)
-  plots <- results[,"plot"]
-
-  return(list(data=data,
-              plots=plots))
 }
 

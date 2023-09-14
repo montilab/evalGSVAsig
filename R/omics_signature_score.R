@@ -19,14 +19,9 @@ omics_signature_score <- function(
     ...)
 {
   ## input checks
-<<<<<<< HEAD
   stopifnot( methods::is(eset,"ExpressionSet") )
-  stopifnot( isTRUE(all(signature %in% Biobase::featureNames(eset))) )
-=======
-  stopifnot( is(eset,"ExpressionSet") )
   stopifnot( length(signature)==1 ) # working w/ single signature only at the moment
-  stopifnot( isTRUE(all(signature[[1]] %in% featureNames(eset))) )
->>>>>>> 2600d3946e751a76bea5c3d9f2823eddbb6f6ab0
+  stopifnot( isTRUE(all(signature[[1]] %in% Biobase::featureNames(eset))) )
   method <- match.arg(method)
 
   sig_score <- {

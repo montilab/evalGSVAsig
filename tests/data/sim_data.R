@@ -47,12 +47,8 @@ if ( FALSE )
     sig_score = pData(eset) |> dplyr::select(sig_score) |> tibble::rownames_to_column() |> tibble::deframe(),
     col_ha = col_ha
   )
-<<<<<<< HEAD
-  print(head(output$score_cor))
   print(output$sig_score)
-=======
-  print(output$sig_score)
-  print(output$score_cor[1:20,])
+  print(output$score_cor[1:20,,drop = FALSE])
   print(output$heatmap_all_genes)
   print(output$heatmap_sig_genes)
 
@@ -73,7 +69,6 @@ if ( FALSE )
   )
   print(output$sig_score[1:20,, drop = FALSE])
   print(output$score_cor[1:20,])
->>>>>>> 2600d3946e751a76bea5c3d9f2823eddbb6f6ab0
   print(output$heatmap_all_genes)
   print(output$heatmap_sig_genes)
 }
