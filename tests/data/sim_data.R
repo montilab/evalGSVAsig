@@ -63,6 +63,7 @@ if ( FALSE )
   output <- omics_signature_heatmap(
     eset = eset,
     signature = signatures,
+    gsea = TRUE,
     col_ha = ComplexHeatmap::columnAnnotation(
       df = pData(eset) |> dplyr::select(hpv_status),
       col = list(hpv_status = c(neg = "gray", pos = "pink"))),

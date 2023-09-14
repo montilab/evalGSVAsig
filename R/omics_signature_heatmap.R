@@ -24,6 +24,7 @@ omics_signature_heatmap <- function(
     col_ha = NULL,
     method = c("GSVA"),
     name = "expression",
+    gsea = FALSE,
     ...
 ) {
   ## support function
@@ -74,6 +75,7 @@ omics_signature_heatmap <- function(
   ks_out <-   .kstest(
     n.x = nrow(eset),
     y = rank(-fData(eset)$score_cor)[fData(eset)$insig == "signature"],
+    weights = if (gsea) fData(eset_srt)$score_cor,
     plotting = TRUE
   )
   ## from idx to names
