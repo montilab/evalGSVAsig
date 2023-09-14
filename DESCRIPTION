@@ -23,7 +23,8 @@ Imports:
     SummarizedExperiment,
     dplyr, 
     tibble,
-    grid 
+    grid,
+    ggplot2
 Suggests: 
     rmarkdown,
     knitr,

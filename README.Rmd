@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of evalGSVAsig is to identify which genes are contributing most to a GSVA score.
+The goal of evalGSVAsig is to identify which genes are contributing most to a signature (e.g., GSVA) score.
 
 ## Installation
 
@@ -42,7 +42,6 @@ signature_list <- c(list(sig))
 names(signature_list) <- c("signature1")
 
 ## run function
-<<<<<<< HEAD
 output <- evalGSVAsig::omics_signature_heatmap(eset = eset, signature = signature_list)
 
 ## view output
@@ -57,23 +56,6 @@ print(output$heatmap_all_genes)
 
 #show heatmap of SIGNATURE gene expression in relation to GSVA score
 print(output$heatmap_sig_genes)
-=======
-output <- evalGSVAsig::GSVAsignatureRanking(eset, signature_list)
-
-## view output
-
-## show sample specific signature score
-print(output$sig_score)
-
-## show genes' correlation to signature score
-print(output$score_cor)
-
-## show heatmap of ALL gene expression in relation to GSVA score
-output$heatmap_all_genes
-
-#show heatmap of SIGNATURE gene expression in relation to GSVA score
-output$heatmap_sig_genes
->>>>>>> 2600d3946e751a76bea5c3d9f2823eddbb6f6ab0
 ```
 
 With sample data:

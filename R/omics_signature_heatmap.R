@@ -43,7 +43,7 @@ omics_signature_heatmap <- function(
   }
   ## compute score if not provided
   if ( is.null(sig_score) ) {
-    sig_score <- omics_signature_score( eset = eset, signature = signature, method = method, ... )
+    sig_score <- omics_signature_score( eset = eset, signature = signature, method = method )
   }
   ## add signature score to eset metadata
   eset$sig_score <- sig_score
@@ -103,7 +103,8 @@ omics_signature_heatmap <- function(
     cluster_column_slices = FALSE,
     row_title = "Genes",
     show_row_names = FALSE,
-    column_names_gp = grid::gpar(fontsize = 8)) +
+    column_names_gp = grid::gpar(fontsize = 8),
+    ...) +
     row_ha
 
   ## 2) with only signature genes
@@ -122,25 +123,25 @@ omics_signature_heatmap <- function(
     row_names_gp = grid::gpar(fontsize = 8),
     column_names_gp = grid::gpar(fontsize = 8),
     show_row_names = TRUE,
-    row_names_side = "left") +
+    row_names_side = "left",
+    ...) +
     ComplexHeatmap::rowAnnotation(
       correlation = ComplexHeatmap::anno_barplot(Biobase::fData(eset_flt)$score_cor))
 
   ## from idx to names
-  edge_idx <- ks_out[['leading_edge']]
-
-  if(is.null(edge_idx)) {
-    ks_out[['hits']] <- NA
-    ks_out[['overlap']] <- 0
-  } else if (!is.null(edge_idx) & edge_idx == 0) {
-    ks_out[['hits']] <- NA
-    ks_out[['overlap']] <- 0
+  if( is.null(ks_out$leading_edge) ) {
+    ks_out$hits <- NA
+  } else if ( !is.null(ks_out$leading_edge) && ks_out$leading_edge == 0 ) {
+    ks_out$hits <- NA
   } else {
-    ks_out[['hits']] <- signature[[1]][ks_out[['leading_hits']]]
-    ks_out[['overlap']] <- edge_idx
+    ks_out$hits <- Biobase::fData(eset_srt) |>
+      dplyr::slice_head(n = ks_out$leading_edge) |>
+      dplyr::filter(insig == "signature") |>
+      tibble::rownames_to_column(var = "featureID") |>
+      dplyr::pull(featureID)
   }
   return(list(
-    score_cor = Biobase::fData(eset_srt) |> dplyr::select(score_cor),
+    score_cor = Biobase::fData(eset_srt) |> dplyr::select(score_cor, insig),
     sig_score = Biobase::pData(eset_srt) |> dplyr::select(sig_score),
     heatmap_all_genes = full_heatmap,
     heatmap_sig_genes = sig_heatmap,

@@ -4,7 +4,7 @@
 #'
 #' @return A ggplot object
 #'
-#' @importFrom ggplot2 ggplot theme_void
+#' @importFrom ggplot2 qplot geom_rug ggplot geom_hline geom_vline annotate theme theme_void element_text element_line element_rect element_blank
 #'
 .ggempty <- function() {
   ggplot2::ggplot() +
@@ -19,7 +19,7 @@
 #' @param title Plot title
 #' @return A ggplot object
 #'
-#' @importFrom ggplot2 qplot aes geom_rug geom_hline geom_vline annotate theme element_text element_blank element_line element_rect
+#' @importFrom ComplexHeatmap anno_lines
 #'
 .ggeplot <- function(n, positions, x_axis, y_axis, title = "") {
   score <- which.max(abs(y_axis))
@@ -47,8 +47,9 @@
 .ks_anno_lines <- function( n, positions, x_axis, y_axis, title="" )
 {
   score <- which.max(abs(y_axis))
-  anno_lines( x = data.frame(x = x_axis, y = y_axis) |> as.matrix(),
-              which = "row", smooth = TRUE)
+  ComplexHeatmap::anno_lines(
+    x = data.frame(x = x_axis, y = y_axis) |> as.matrix(),
+    which = "row", smooth = TRUE)
 }
 #' One-sided Kolmogorov–Smirnov test
 #'
@@ -137,7 +138,6 @@
     }
   }
   leading_edge <- x.axis[leading_edge]
-  leading_hits <- intersect(x.axis[x.axis <= leading_edge], y)
 
   # One-sided Kolmogorov–Smirnov test
   results <- suppressWarnings(ks.test(1:n.x, y, alternative = "less"))
@@ -155,7 +155,6 @@
     score = as.numeric(results$statistic),
     pval = results$p.value,
     leading_edge = leading_edge,
-    leading_hits = leading_hits,
     x_axis = x.axis,
     y_axis = y.axis,
     plot = p

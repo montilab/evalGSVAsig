@@ -51,15 +51,15 @@ if ( FALSE )
   print(output$score_cor[1:20,,drop = FALSE])
   print(output$heatmap_all_genes)
   print(output$heatmap_sig_genes)
+  print(output$ks$plot)
+  print(output$ks$leading_hits)
+  print(output$ks$hits)
 
-  ks_out <- .kstest(
-    n.x = nrow(output$score_cor),
-    y = rank(-output$score_cor$score_cor)[output$score_cor$insig == "signature"],
-    plotting = TRUE
-  )
   ## show w/ package data
   data(eset)
   data(signatures)
+  ## remove 'constant' features
+  eset <- eset[matrixStats::rowSds(exprs(eset))>0,]
   output <- omics_signature_heatmap(
     eset = eset,
     signature = signatures,
@@ -71,4 +71,7 @@ if ( FALSE )
   print(output$score_cor[1:20,])
   print(output$heatmap_all_genes)
   print(output$heatmap_sig_genes)
+  print(output$ks$plot)
+  print(output$ks$hits)
 }
+
