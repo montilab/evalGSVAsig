@@ -76,6 +76,18 @@ omics_signature_heatmap <- function(
     y = rank(-fData(eset)$score_cor)[fData(eset)$insig == "signature"],
     plotting = TRUE
   )
+  ## from idx to names
+  if( is.null(ks_out$leading_edge) ) {
+    ks_out$hits <- NA
+  } else if ( !is.null(ks_out$leading_edge) && ks_out$leading_edge == 0 ) {
+    ks_out$hits <- NA
+  } else {
+    ks_out$hits <- Biobase::fData(eset_srt) |>
+      dplyr::slice_head(n = ks_out$leading_edge) |>
+      dplyr::filter(insig == "signature") |>
+      tibble::rownames_to_column(var = "featureID") |>
+      dplyr::pull(featureID)
+  }
   if ( is.null(col_ha)) {
     ## the only column annotation will be the sig_score barplot
     col_ha <- ComplexHeatmap::HeatmapAnnotation(
@@ -90,9 +102,11 @@ omics_signature_heatmap <- function(
   }
   row_ha <- ComplexHeatmap::rowAnnotation(
     genes = Biobase::fData(eset_srt)$insig,
+    leadedge = ifelse(featureNames(eset_srt) %in% ks_out$hits, "yes", "no"),
 #    ks = ks_out$plot,
     correlation = ComplexHeatmap::anno_barplot(Biobase::fData(eset_srt)$score_cor),
-    col = list(genes = c("background" = "brown", "signature" = "lightgreen")),
+    col = list(genes = c("background" = "brown", "signature" = "lightgreen"),
+               leadedge = c(yes = "black", no = "white")),
     show_annotation_name = FALSE
   )
   full_heatmap <- ComplexHeatmap::Heatmap(
@@ -127,18 +141,6 @@ omics_signature_heatmap <- function(
     ComplexHeatmap::rowAnnotation(
       correlation = ComplexHeatmap::anno_barplot(Biobase::fData(eset_flt)$score_cor))
 
-  ## from idx to names
-  if( is.null(ks_out$leading_edge) ) {
-    ks_out$hits <- NA
-  } else if ( !is.null(ks_out$leading_edge) && ks_out$leading_edge == 0 ) {
-    ks_out$hits <- NA
-  } else {
-    ks_out$hits <- Biobase::fData(eset_srt) |>
-      dplyr::slice_head(n = ks_out$leading_edge) |>
-      dplyr::filter(insig == "signature") |>
-      tibble::rownames_to_column(var = "featureID") |>
-      dplyr::pull(featureID)
-  }
   return(list(
     score_cor = Biobase::fData(eset_srt) |> dplyr::select(score_cor, insig),
     sig_score = Biobase::pData(eset_srt) |> dplyr::select(sig_score),
