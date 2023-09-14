@@ -126,6 +126,19 @@ omics_signature_heatmap <- function(
     ComplexHeatmap::rowAnnotation(
       correlation = ComplexHeatmap::anno_barplot(Biobase::fData(eset_flt)$score_cor))
 
+  ## from idx to names
+  edge_idx <- ks_out[['leading_edge']]
+
+  if(is.null(edge_idx)) {
+    ks_out[['hits']] <- NA
+    ks_out[['overlap']] <- 0
+  } else if (!is.null(edge_idx) & edge_idx == 0) {
+    ks_out[['hits']] <- NA
+    ks_out[['overlap']] <- 0
+  } else {
+    ks_out[['hits']] <- signature[[1]][ks_out[['leading_hits']]]
+    ks_out[['overlap']] <- edge_idx
+  }
   return(list(
     score_cor = Biobase::fData(eset_srt) |> dplyr::select(score_cor),
     sig_score = Biobase::pData(eset_srt) |> dplyr::select(sig_score),
