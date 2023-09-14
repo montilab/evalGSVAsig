@@ -23,6 +23,7 @@ omics_signature_heatmap <- function(
     sig_score = NULL,
     col_ha = NULL,
     method = c("GSVA"),
+    name = "expression",
     ...
 ) {
   ## support function
@@ -43,7 +44,7 @@ omics_signature_heatmap <- function(
   }
   ## compute score if not provided
   if ( is.null(sig_score) ) {
-    sig_score <- omics_signature_score( eset = eset, signature = signature, method = method )
+    sig_score <- omics_signature_score( eset = eset, signature = signature, method = method)
   }
   ## add signature score to eset metadata
   eset$sig_score <- sig_score
@@ -96,7 +97,6 @@ omics_signature_heatmap <- function(
   )
   full_heatmap <- ComplexHeatmap::Heatmap(
     matrix = t(scale(t(exprs(eset_srt)))),
-    name = "expression",
     top_annotation = col_ha,
     cluster_rows = FALSE,
     cluster_columns = FALSE,
@@ -104,7 +104,7 @@ omics_signature_heatmap <- function(
     row_title = "Genes",
     show_row_names = FALSE,
     column_names_gp = grid::gpar(fontsize = 8),
-    ...) +
+    ... ) +
     row_ha
 
   ## 2) with only signature genes
@@ -113,7 +113,6 @@ omics_signature_heatmap <- function(
 
   sig_heatmap <- ComplexHeatmap::Heatmap(
     matrix = t(scale(t(exprs(eset_flt)))),
-    name = "expression",
     top_annotation = col_ha,
     cluster_rows = FALSE,
     cluster_columns = FALSE,
@@ -124,7 +123,7 @@ omics_signature_heatmap <- function(
     column_names_gp = grid::gpar(fontsize = 8),
     show_row_names = TRUE,
     row_names_side = "left",
-    ...) +
+    ... ) +
     ComplexHeatmap::rowAnnotation(
       correlation = ComplexHeatmap::anno_barplot(Biobase::fData(eset_flt)$score_cor))
 

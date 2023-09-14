@@ -65,7 +65,9 @@ if ( FALSE )
     signature = signatures,
     col_ha = ComplexHeatmap::columnAnnotation(
       df = pData(eset) |> dplyr::select(hpv_status),
-      col = list(hpv_status = c(neg = "gray", pos = "pink")))
+      col = list(hpv_status = c(neg = "gray", pos = "pink"))),
+    show_column_names = FALSE,
+    column_title = "TEST"
   )
   print(output$sig_score[1:20,, drop = FALSE])
   print(output$score_cor[1:20,])
