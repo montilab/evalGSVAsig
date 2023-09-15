@@ -73,15 +73,9 @@
                     plotting = FALSE,
                     plot.title = "") {
   n.y <- length(y)
-  err <- list(score = 0, pval = 1, leading_edge = NULL, leading_hits = NA, plot = .ggempty())
+  err <- list(score = 0, pval = 1, leading_edge = NULL, leading_hits = NULL, plot = .ggempty())
 
-  if (n.y < 1) {
-    return(err)
-  }
-  if (any(y > n.x)) {
-    return(err)
-  }
-  if (any(y < 1)) {
+  if ( n.y < 1 || any(y > n.x) || any(y < 1) ) {
     return(err)
   }
   x.axis <- y.axis <- NULL

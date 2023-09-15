@@ -21,6 +21,7 @@ omics_signature_heatmap <- function(
     eset,
     signature,
     sig_score = NULL,
+    cor_method = c("pearson", "spearman", "kendall"),
     col_ha = NULL,
     min_sigsize = 3,
     method = c("GSVA"),
@@ -28,10 +29,8 @@ omics_signature_heatmap <- function(
     gsea = FALSE,
     ...
 ) {
-  ## support function
-  replace_na <- function( vec, value = 0 ) replace( vec, is.na(vec), values = value)
-
   ## input checks
+  cor_method = match.arg(cor_method)
   stopifnot( methods::is(eset, "SummarizedExperiment") || methods::is(eset, "ExpressionSet") )
   stopifnot( is.null(sig_score) || length(sig_score)==ncol(eset) )
   stopifnot( is.null(sig_score) || isTRUE(all.equal(names(sig_score), sampleNames(eset))) )
@@ -50,19 +49,12 @@ omics_signature_heatmap <- function(
   }
   ## add signature score to eset metadata
   eset$sig_score <- sig_score
-
-  ## this would be more robust, but perhaps an overkill
-  ## pData(eset) <- dplyr::left_join(
-  ##   pData(eset) |> tibble::rownames_to_column(var = "sampleID"),
-  ##   sig_score |> tibble::rownames_to_column(var = "sampleID"),
-  ##   by = "sampleID") |>
-  ##   tibble::column_to_rownames(var = "sampleID")
-
   stopifnot( all(!is.na(eset$sig_score)) )
 
-  ## add correlation (and rank) of each gene with signature score to fData
-  fData(eset)$score_cor <-
-    stats::cor(eset$sig_score, t(exprs(eset)))[1,]
+  ## add correlation (and p-value) of each gene with signature score to fData
+  COR <- psych::corr.test(eset$sig_score, t(exprs(eset)), method = cor_method)
+  fData(eset)$score_cor <- COR$r[1,]
+  fData(eset)$pval_cor <- COR$p[1,]
   fData(eset)$insig <- factor(
     ifelse(featureNames(eset) %in% signature[[1]], 'signature', 'background')
   )
@@ -106,7 +98,6 @@ omics_signature_heatmap <- function(
   row_ha <- ComplexHeatmap::rowAnnotation(
     genes = Biobase::fData(eset_srt)$insig,
     leadedge = ifelse(featureNames(eset_srt) %in% ks_out$hits, "yes", "no"),
-#    ks = ks_out$plot,
     correlation = ComplexHeatmap::anno_barplot(Biobase::fData(eset_srt)$score_cor),
     col = list(genes = c("background" = "brown", "signature" = "lightgreen"),
                leadedge = c(yes = "black", no = "white")),
@@ -145,7 +136,7 @@ omics_signature_heatmap <- function(
       correlation = ComplexHeatmap::anno_barplot(Biobase::fData(eset_flt)$score_cor))
 
   return(list(
-    score_cor = Biobase::fData(eset_srt) |> dplyr::select(score_cor, insig),
+    score_cor = Biobase::fData(eset_srt) |> dplyr::select(score_cor, pval_cor, insig),
     sig_score = Biobase::pData(eset_srt) |> dplyr::select(sig_score),
     heatmap_all_genes = full_heatmap,
     heatmap_sig_genes = sig_heatmap,

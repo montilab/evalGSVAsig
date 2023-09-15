@@ -52,7 +52,6 @@ if ( FALSE )
   print(output$heatmap_all_genes)
   print(output$heatmap_sig_genes)
   print(output$ks$plot)
-  print(output$ks$leading_hits)
   print(output$ks$hits)
 
   ## show w/ package data
