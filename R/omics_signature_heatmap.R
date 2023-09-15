@@ -22,6 +22,7 @@ omics_signature_heatmap <- function(
     signature,
     sig_score = NULL,
     col_ha = NULL,
+    min_sigsize = 3,
     method = c("GSVA"),
     name = "expression",
     gsea = FALSE,
@@ -125,7 +126,7 @@ omics_signature_heatmap <- function(
 
   ## 2) with only signature genes
   eset_flt <- eset_srt[Biobase::featureNames(eset_srt) %in% signature[[1]],]
-  stopifnot( nrow(eset_flt) > max(5, length(signature) * .25) )
+  stopifnot( nrow(eset_flt) > max(min_sigsize, length(signature) * .25) )
 
   sig_heatmap <- ComplexHeatmap::Heatmap(
     matrix = t(scale(t(exprs(eset_flt)))),
