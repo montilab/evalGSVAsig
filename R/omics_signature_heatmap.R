@@ -72,9 +72,10 @@ omics_signature_heatmap <- function(
     plotting = TRUE
   )
   ## from idx to names
-  if( is.null(ks_out$leading_edge) ) {
+  fData(eset_srt)$leading_edge <- NA
+  if (is.null(ks_out$leading_edge)) {
     ks_out$hits <- NA
-  } else if ( !is.null(ks_out$leading_edge) && ks_out$leading_edge == 0 ) {
+  } else if (!is.null(ks_out$leading_edge) && ks_out$leading_edge == 0) {
     ks_out$hits <- NA
   } else {
     ks_out$hits <- Biobase::fData(eset_srt) |>
@@ -82,6 +83,9 @@ omics_signature_heatmap <- function(
       dplyr::filter(insig == "signature") |>
       tibble::rownames_to_column(var = "featureID") |>
       dplyr::pull(featureID)
+    fData(eset_srt)$leading_edge <-
+      factor(ifelse(featureNames(eset_srt) %in% ks_out$hits, "yes", "no"),
+             levels = c("yes", "no"))
   }
   if ( is.null(col_ha)) {
     ## the only column annotation will be the sig_score barplot
@@ -136,7 +140,7 @@ omics_signature_heatmap <- function(
       correlation = ComplexHeatmap::anno_barplot(Biobase::fData(eset_flt)$score_cor))
 
   return(list(
-    score_cor = Biobase::fData(eset_srt) |> dplyr::select(score_cor, pval_cor, insig),
+    score_cor = Biobase::fData(eset_srt) |> dplyr::select(score_cor, pval_cor, insig, leading_edge),
     sig_score = Biobase::pData(eset_srt) |> dplyr::select(sig_score),
     heatmap_all_genes = full_heatmap,
     heatmap_sig_genes = sig_heatmap,
