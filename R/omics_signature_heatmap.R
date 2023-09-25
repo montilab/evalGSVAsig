@@ -58,14 +58,15 @@ omics_signature_heatmap <- function(
   fData(eset)$score_cor <- drop(COR$r)
   fData(eset)$pval_cor <- drop(COR$p)
   fData(eset)$insig <- factor(
-    ifelse(featureNames(eset) %in% signature[[1]], 'signature', 'background')
+    ifelse(featureNames(eset) %in% signature[[1]], 'signature', 'background'),
+    levels = c("signature","background")
   )
   ## PLOTS
 
   ## 1) with all genes
   eset_srt <- eset[
     order(Biobase::fData(eset)$score_cor, decreasing = TRUE), # high to low correlation
-    order(eset$sig_score, decreasing = TRUE)         # high to low sig score
+    order(eset$sig_score, decreasing = TRUE)                  # high to low sig score
   ]
   ks_out <-   .kstest(
     n.x = nrow(eset),
@@ -85,6 +86,7 @@ omics_signature_heatmap <- function(
       dplyr::filter(insig == "signature") |>
       tibble::rownames_to_column(var = "featureID") |>
       dplyr::pull(featureID)
+    ## add information about hits in leading edge
     fData(eset_srt)$leading_edge <-
       factor(ifelse(featureNames(eset_srt) %in% ks_out$hits, "yes", "no"),
              levels = c("yes", "no"))
@@ -109,7 +111,7 @@ omics_signature_heatmap <- function(
                leadedge = c(yes = "black", no = "white")),
     show_annotation_name = FALSE
   )
-  full_heatmap <- ComplexHeatmap::Heatmap(
+  full_heatmap <- suppressMessages(ComplexHeatmap::Heatmap(
     matrix = t(scale(t(exprs(eset_srt)))),
     top_annotation = col_ha,
     cluster_rows = FALSE,
@@ -118,14 +120,14 @@ omics_signature_heatmap <- function(
     row_title = "Genes",
     show_row_names = FALSE,
     column_names_gp = grid::gpar(fontsize = 8),
-    ... ) +
+    ... )) +
     row_ha
 
   ## 2) with only signature genes
   eset_flt <- eset_srt[Biobase::featureNames(eset_srt) %in% signature[[1]],]
   stopifnot( nrow(eset_flt) > max(min_sigsize, length(signature) * .25) )
 
-  sig_heatmap <- ComplexHeatmap::Heatmap(
+  sig_heatmap <- suppressMessages(ComplexHeatmap::Heatmap(
     matrix = t(scale(t(exprs(eset_flt)))),
     top_annotation = col_ha,
     cluster_rows = FALSE,
@@ -137,13 +139,15 @@ omics_signature_heatmap <- function(
     column_names_gp = grid::gpar(fontsize = 8),
     show_row_names = TRUE,
     row_names_side = "left",
-    ... ) +
+    ... )) +
     ComplexHeatmap::rowAnnotation(
       correlation = ComplexHeatmap::anno_barplot(Biobase::fData(eset_flt)$score_cor))
 
   return(list(
-    score_cor = Biobase::fData(eset_srt) |> dplyr::select(score_cor, pval_cor, insig, leading_edge),
-    sig_score = Biobase::pData(eset_srt) |> dplyr::select(sig_score),
+    score_cor = Biobase::fData(eset_srt) |>
+      dplyr::select(score_cor, pval_cor, insig, leading_edge),
+    sig_score = Biobase::pData(eset_srt) |>
+      dplyr::select(sig_score),
     heatmap_all_genes = full_heatmap,
     heatmap_sig_genes = sig_heatmap,
     ks = ks_out
