@@ -53,8 +53,10 @@ omics_signature_heatmap <- function(
 
   ## add correlation (and p-value) of each gene with signature score to fData
   COR <- psych::corr.test(eset$sig_score, t(exprs(eset)), method = cor_method)
-  fData(eset)$score_cor <- COR$r[1,]
-  fData(eset)$pval_cor <- COR$p[1,]
+  stopifnot(nrow(COR$r)==1)
+  stopifnot(nrow(COR$p)==1)
+  fData(eset)$score_cor <- drop(COR$r)
+  fData(eset)$pval_cor <- drop(COR$p)
   fData(eset)$insig <- factor(
     ifelse(featureNames(eset) %in% signature[[1]], 'signature', 'background')
   )
