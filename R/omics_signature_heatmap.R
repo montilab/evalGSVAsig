@@ -56,14 +56,15 @@ omics_signature_heatmap <- function(
   fData(eset)$score_cor <- COR$r[1,]
   fData(eset)$pval_cor <- COR$p[1,]
   fData(eset)$insig <- factor(
-    ifelse(featureNames(eset) %in% signature[[1]], 'signature', 'background')
+    ifelse(featureNames(eset) %in% signature[[1]], 'signature', 'background'),
+    levels = c("signature","background")
   )
   ## PLOTS
 
   ## 1) with all genes
   eset_srt <- eset[
     order(Biobase::fData(eset)$score_cor, decreasing = TRUE), # high to low correlation
-    order(eset$sig_score, decreasing = TRUE)         # high to low sig score
+    order(eset$sig_score, decreasing = TRUE)                  # high to low sig score
   ]
   ks_out <-   .kstest(
     n.x = nrow(eset),
@@ -83,6 +84,7 @@ omics_signature_heatmap <- function(
       dplyr::filter(insig == "signature") |>
       tibble::rownames_to_column(var = "featureID") |>
       dplyr::pull(featureID)
+    ## add information about hits in leading edge
     fData(eset_srt)$leading_edge <-
       factor(ifelse(featureNames(eset_srt) %in% ks_out$hits, "yes", "no"),
              levels = c("yes", "no"))
@@ -140,8 +142,10 @@ omics_signature_heatmap <- function(
       correlation = ComplexHeatmap::anno_barplot(Biobase::fData(eset_flt)$score_cor))
 
   return(list(
-    score_cor = Biobase::fData(eset_srt) |> dplyr::select(score_cor, pval_cor, insig, leading_edge),
-    sig_score = Biobase::pData(eset_srt) |> dplyr::select(sig_score),
+    score_cor = Biobase::fData(eset_srt) |>
+      dplyr::select(score_cor, pval_cor, insig, leading_edge),
+    sig_score = Biobase::pData(eset_srt) |>
+      dplyr::select(sig_score),
     heatmap_all_genes = full_heatmap,
     heatmap_sig_genes = sig_heatmap,
     ks = ks_out
