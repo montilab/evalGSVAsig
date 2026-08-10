@@ -31,11 +31,11 @@ This package simply takes the correlation of each gene in the signature with the
 
 ## Installation
 
-You can install the development version of sigProCon from [GitHub](https://github.com/) with:
+You can install sigProCon from [GitHub](https://github.com/) with:
 
 ``` r
-# install.packages("devtools")
-devtools::install_github("montilab/sigProCon@dev")
+# install.packages("remotes")
+remotes::install_github("montilab/sigProCon")
 ```
 
 ## Example with toy sample data:

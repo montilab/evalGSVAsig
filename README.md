@@ -34,8 +34,7 @@ an annotated heatmap and a KS plot.
 
 ## Installation
 
-You can install sigProCon from
-[GitHub](https://github.com/) with:
+You can install sigProCon from [GitHub](https://github.com/) with:
 
 ``` r
 # install.packages("remotes")
