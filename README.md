@@ -34,12 +34,12 @@ an annotated heatmap and a KS plot.
 
 ## Installation
 
-You can install the development version of sigProCon from
+You can install sigProCon from
 [GitHub](https://github.com/) with:
 
 ``` r
-# install.packages("devtools")
-devtools::install_github("montilab/sigProCon@dev")
+# install.packages("remotes")
+remotes::install_github("montilab/sigProCon")
 ```
 
 ## Example with toy sample data:
